@@ -14,23 +14,21 @@ from skimage.feature.peak import peak_local_max
 from os import listdir
 from os.path import isfile, join
 
-#dataset = '2cores10Frames'
-dataset = 'tape_fp_add_longtest1'
 
-def getSteadyMask(filterStrength):
-    datasetPath = ('./data/' + dataset + '/')
+def getSteadyMask(args):
+    datasetPath = ('./data/' + args.dataset + '/')
     #determine last frame to capture steady state
     onlyfiles = [f for f in listdir(datasetPath) if isfile(join(datasetPath, f))]
     lastFrame = len(onlyfiles) - 3
 
     # Open mask
-    mask = PIL.Image.open(datasetPath + dataset + ' - Box 1.bmp').convert('LA')
+    mask = PIL.Image.open(datasetPath + args.dataset + ' - Box 1.bmp').convert('LA')
     mask = mask.convert('1')
     mask = numpy.asarray(mask)
     
 
     # Open raw heatmap
-    reader = csv.reader(open(datasetPath + dataset + '_' + str(lastFrame) + '.csv', "rb"), delimiter=",")
+    reader = csv.reader(open(datasetPath + args.dataset + '_' + str(lastFrame) + '.csv', "rb"), delimiter=",")
     x = list(reader)
     heatmap = numpy.array(x).astype("float")
     # Apply mask
@@ -43,8 +41,8 @@ def getSteadyMask(filterStrength):
     # Discrete Cosine Transform (DCT) of heatmap
     dct = scipy.fftpack.dct(scipy.fftpack.dct(heatmap.T, norm='ortho').T, norm='ortho')
     # Delete high-freq region
-    dct[dct.shape[0] // filterStrength:, :] = 0
-    dct[:, dct.shape[1] // filterStrength:] = 0
+    dct[dct.shape[0] // args.filter:, :] = 0
+    dct[:, dct.shape[1] // args.filter:] = 0
     # Inverse DCT to go back to original heatmap but without the noise
     idct = scipy.fftpack.idct(scipy.fftpack.idct(dct.T, norm='ortho').T, norm='ortho')
     
@@ -58,12 +56,13 @@ def getSteadyMask(filterStrength):
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--filter', type=int, dest='filter', default=18, help='how much to filter high freqiences')
+    parser.add_argument('--dataset', type=str, dest='dataset', default='2cores10Frames', help='path of dataset')
     args = parser.parse_args()
 
-    steadyMask = getSteadyMask(args.filter);
+    steadyMask = getSteadyMask(args);
 
     # Open mask
-    mask = PIL.Image.open('./data/' + dataset + '/' + dataset + ' - Box 1.bmp').convert('LA')
+    mask = PIL.Image.open('./data/' + args.dataset + '/' + args.dataset + ' - Box 1.bmp').convert('LA')
     mask = mask.convert('1')
     mask = numpy.asarray(mask)
     
@@ -74,7 +73,7 @@ def main():
         
         try:
             # Open raw heatmap
-            reader = csv.reader(open('./data/' + dataset + '/' + dataset + '_' + str(i) + '.csv', "rb"), delimiter=",")
+            reader = csv.reader(open('./data/' + args.dataset + '/' + args.dataset + '_' + str(i) + '.csv', "rb"), delimiter=",")
             x = list(reader)
             heatmap = numpy.array(x).astype("float")
             # Apply mask
@@ -95,7 +94,7 @@ def main():
             idct = scipy.fftpack.idct(scipy.fftpack.idct(dct.T, norm='ortho').T, norm='ortho')
 
             #subtract steady state filter
-            idct = idct - ((idct.max()*0.4) * steadyMask)
+            #idct = idct - ((idct.max()*0.4) * steadyMask)
 
             lap = scipy.ndimage.filters.laplace(idct)
             
@@ -104,34 +103,34 @@ def main():
             # Find all local maxima
             maxima = peak_local_max(lap)
             
-            if (i == i):
+            if (i == 1):
                 maximaGlobal = maxima
             else:
                 maximaGlobal = numpy.vstack((maximaGlobal, maxima))
 
             #Filtered Heatmap
-    #        Axes3D(plt.figure()).plot_surface(X, Y, idct)
+            Axes3D(plt.figure()).plot_surface(X, Y, heatmap)
 
             #heat sources
-            plt.plot(maximaGlobal[:,1], maximaGlobal[:,0], 'o')
+    #        plt.plot(maximaGlobal[:,1], maximaGlobal[:,0], 'o')
 
             plt.savefig(str(i)+'.jpg')
-            plt.clf()
+           # plt.clf()
         except:
-           # print(maximaGlobal)
-           # plt.plot(maximaGlobal[:,1], maximaGlobal[:,0], 'o')
+            #print(maximaGlobal)
+            #plt.plot(maximaGlobal[:,1], maximaGlobal[:,0], 'o')
            # plt.savefig(str(args.filter)+'.jpg')
            # plt.show()
             break
         
     # Plot
-   # Axes3D(plt.figure()).plot_surface(X, Y, heatmap)
-   # Axes3D(plt.figure()).plot_surface(X, Y, idct)
-   # Axes3D(plt.figure()).plot_surface(X, Y, lap)
-   # plt.plot(maxima[:,1], maxima[:,0], lap[maxima[:,0],maxima[:,1]], 'o')
-   # plt.show()
-   # plt.plot(maximaGlobal[:,1], maximaGlobal[:,0], 'o')
-   # plt.show()
+    #Axes3D(plt.figure()).plot_surface(X, Y, heatmap)
+    #Axes3D(plt.figure()).plot_surface(X, Y, idct)
+    #Axes3D(plt.figure()).plot_surface(X, Y, lap)
+    #plt.plot(maxima[:,1], maxima[:,0], lap[maxima[:,0],maxima[:,1]], 'o')
+    #plt.show()
+    #plt.plot(maximaGlobal[:,1], maximaGlobal[:,0], 'o')
+    #plt.show()
 
 
 

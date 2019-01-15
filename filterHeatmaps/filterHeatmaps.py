@@ -87,9 +87,48 @@ def main():
             
             # Discrete Cosine Transform (DCT) of heatmap
             dct = scipy.fftpack.dct(scipy.fftpack.dct(heatmap.T, norm='ortho').T, norm='ortho')
-            # Delete high-freq region
-            dct[dct.shape[0] // args.filter:, :] = 0
-            dct[:, dct.shape[1] // args.filter:] = 0
+            # Delete high-freq region in diagonal pattern, this is determined by the --filter option
+            # --filter 10 means only allow top 10 frequencies 
+            i = 0
+            j = 0
+            n = dct.shape[0]
+            m = dct.shape[1]
+            ind = 2
+            while ind < dct.shape[0]*dct.shape[1]:
+                if (j + 1 < m or i + 1 < n):
+                    if (j+1 < m):
+                        j += 1
+                    elif (i + 1 < n):
+                        i +=1
+                    
+                    if ind > args.filter:
+                        dct[i,j] = 0
+                    ind += 1
+
+                while (j - 1 >= 0 and i + 1 < n):
+                    i += 1
+                    j -= 1
+                    if ind > args.filter:
+                        dct[i,j] = 0
+                    ind += 1
+
+                if (j + 1 < m or i + 1 < n):
+                    if (i + 1 < n):
+                        i += 1
+                    elif (j + 1 < m):
+                        j += 1
+                    if ind > args.filter:
+                        dct[i,j] = 0
+                    ind += 1
+
+                while (j + 1 < m and i - 1 >= 0):
+                    i -= 1
+                    j += 1
+                    if ind > args.filter:
+                        dct[i,j] = 0
+                    ind += 1
+            #dct[dct.shape[0] // args.filter:, :] = 0
+            #dct[:, dct.shape[1] // args.filter:] = 0
             # Inverse DCT to go back to original heatmap but without the noise
             idct = scipy.fftpack.idct(scipy.fftpack.idct(dct.T, norm='ortho').T, norm='ortho')
 
@@ -109,10 +148,10 @@ def main():
                 maximaGlobal = numpy.vstack((maximaGlobal, maxima))
 
             #Filtered Heatmap
-            Axes3D(plt.figure()).plot_surface(X, Y, heatmap)
+            #Axes3D(plt.figure()).plot_surface(X, Y, heatmap)
 
             #heat sources
-    #        plt.plot(maximaGlobal[:,1], maximaGlobal[:,0], 'o')
+            # plt.plot(maximaGlobal[:,1], maximaGlobal[:,0], 'o')
 
             plt.savefig(str(i)+'.jpg')
            # plt.clf()

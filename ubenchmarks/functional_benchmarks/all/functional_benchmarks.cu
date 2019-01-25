@@ -174,7 +174,7 @@ __global__ void SFU_SQRT(const float* A, const float* B, float* C, int N)
         {
 	    repeat2048(asm volatile ("sqrt.approx.ftz.f32 %0, %2;\n\t"
 				     "sqrt.approx.ftz.f32 %1, %3;" :
-				     "=f"(Value),"=f"(Value1) : "f" (Value2), "f"(Value3));)  
+				     "=f"(Value),"=f"(Value1) : "f" (Value2), "f"(Value3));)
         }
     }
    Value=Value3-Value2+Value1;		
@@ -188,9 +188,6 @@ __global__ void FP_ADD(const float* A, const float* B, float* C, int N)
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     //Do Some Computation
     float Value1=0;
-    float Value2=0;
-    float Value3=0;
-    float Value=0;
     float I1=A[i];
     float I2=B[i];
 
@@ -201,72 +198,18 @@ __global__ void FP_ADD(const float* A, const float* B, float* C, int N)
         // Excessive Addition access
     	for(unsigned k=0; k<ITERATIONS;k++)
 	{
-            Value1=I1+I2;
-	    Value3=I1-I2;
-            Value1+=Value2;
-            Value1+=Value2;
-            Value2=Value3-Value1;
-            Value1=Value2+Value3;
-            Value1=I1+I2;
-	    Value3=I1-I2;
-            Value1+=Value2;
-            Value1+=Value2;
-            Value2=Value3-Value1;
-            Value1=Value2+Value3;
-            Value1=I1+I2;
-	    Value3=I1-I2;
-            Value1+=Value2;
-            Value1+=Value2;
-            Value2=Value3-Value1;
-            Value1=Value2+Value3;
-            Value1=I1+I2;
-	    Value3=I1-I2;
-            Value1+=Value2;
-            Value1+=Value2;
-            Value2=Value3-Value1;
-            Value1=Value2+Value3;
-            Value1=I1+I2;
-	    Value3=I1-I2;
-            Value1+=Value2;
-            Value1+=Value2;
-            Value2=Value3-Value1;
-            Value1=Value2+Value3;
-            Value1=I1+I2;
-	    Value3=I1-I2;
-            Value1+=Value2;
-            Value1+=Value2;
-            Value2=Value3-Value1;
-            Value1=Value2+Value3;
-            Value1=I1+I2;
-	    Value3=I1-I2;
-            Value1+=Value2;
-            Value1+=Value2;
-            Value2=Value3-Value1;
-            Value1=Value2+Value3;
-            Value1=I1+I2;
-	    Value3=I1-I2;
-            Value1+=Value2;
-            Value1+=Value2;
-            Value2=Value3-Value1;
-            Value1=Value2+Value3;
-
+	    repeat2048(asm volatile ("add.rz.f32 %0, %1, %2;": "=f"(Value1) : "f"(I1), "f"(I2));)
     	}
     }
     __syncthreads();
-
-    Value=Value1;
-    C[i]=Value+Value2;
-
+    C[i]=Value1;
 }
 
 __global__ void FP_DIV(const float* A, const float* B, float* C, int N)
 {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     //Do Some Computation
-    float Value1;
-    float Value2;
-    float Value3;
-    float Value;
+    float Value1 = 0.0;
     float I1=A[i];
     float I2=B[i];
 
@@ -278,44 +221,17 @@ __global__ void FP_DIV(const float* A, const float* B, float* C, int N)
     {
         for(unsigned k=0; k<ITERATIONS;k++) 
         {
-            Value1=I1/I2;
-            Value3=I1/I2;
-            Value1/=Value2;
-            Value1/=Value2;
-            Value2=Value3/Value1;
-            Value1=Value2/Value3;
-            Value1=I1/I2;
-            Value3=I2/I1;
-            Value2=I1/Value3;
-            Value1/=Value2;
-            Value3/=Value1;
-            Value1/=Value3;
-            Value1=I1/I2;
-            Value3=I1/I2;
-            Value1/=Value2;
-            Value1/=Value2;
-            Value2=Value3/Value1;
-            Value1=Value2/Value3;
-            Value1=I1/I2;
-            Value3=I2/I1;
-            Value2=I1/Value3;
-            Value1/=Value2;
-            Value3/=Value1;
-            Value1/=Value3;
+	    repeat2048(asm volatile ("div.rz.f32 %0, %1, %2;": "=f"(Value1) : "f"(I1), "f"(I2));)
         }
     }
     __syncthreads();
-    Value=Value1;
-    C[i]=Value/Value2;
+    C[i]= Value1;
 }
 
 __global__ void FP_MAD(const float* A, const float* B, float* C, int N)
 {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     //Do Some Computation
-    float Value1;
-    float Value2;
-    float Value3;
     float Value;
     float I1=A[i];
     float I2=B[i];
@@ -325,38 +241,12 @@ __global__ void FP_MAD(const float* A, const float* B, float* C, int N)
     if(smid == SMID)
     {
         for(unsigned k=0; k<ITERATIONS;k++) {
-            Value1=I1*I2+Value1;
-            Value3=I1*I2+Value2;
-            Value1*=Value2+Value1;
-            Value1*=Value2+Value3;
-            Value2=Value3*Value1+Value1;
-            Value1=Value2*Value3+Value3;
-    	    Value1+=I1*I2;
-    	    Value3+=Value1*I1;
-    	    Value2+=Value3*Value1;
-    	    Value3*=Value2;
-    	    Value1*=Value2;
-            Value3*=Value1;
-            Value1=I1*I2+Value1;
-            Value3=I1*I2+Value2;
-            Value1*=Value2+Value1;
-            Value1*=Value2+Value3;
-            Value2=Value3*Value1+Value1;
-            Value1=Value2*Value3+Value3;
-    	    Value1=I1*I2;
-    	    Value3=Value1*I1;
-    	    Value2=Value3*Value1;
-    	    Value3*=Value2;
-    	    Value1*=Value2;
-            Value3*=Value1;
+            repeat2048(asm volatile ("fma.rz.f32 %0, %1, %2, %2;": "=f"(Value) : "f"(I1), "f"(I2));)
         }
     }
     __syncthreads();
 
-    Value=Value1;
-    C[i]=Value*Value2;
-    __syncthreads();
-
+    C[i]=Value;
 }
 
 __global__ void FP_MUL(const float* A, const float* B, float* C, int N)
@@ -364,9 +254,6 @@ __global__ void FP_MUL(const float* A, const float* B, float* C, int N)
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     //Do Some Computation
     float Value1;
-    float Value2;
-    float Value3;
-    float Value;
     float I1=A[i];
     float I2=B[i];
 
@@ -376,37 +263,12 @@ __global__ void FP_MUL(const float* A, const float* B, float* C, int N)
     {
         for(unsigned k=0; k<ITERATIONS;k++)
         {
-            Value1=I1*I2;
-            Value3=I1*I2;
-            Value1*=Value2;
-            Value1*=Value2;
-            Value2=Value3*Value1;
-            Value1=Value2*Value3;
-    	    Value1=I1*I2;
-    	    Value3=Value1*I1;
-    	    Value2=Value3*Value1;
-    	    Value3*=Value2;
-    	    Value1*=Value2;
-            Value3*=Value1;
-            Value1=I1*I2;
-            Value3=I1*I2;
-            Value1*=Value2;
-            Value1*=Value2;
-            Value2=Value3*Value1;
-            Value1=Value2*Value3;
-    	    Value1=I1*I2;
-    	    Value3=Value1*I1;
-    	    Value2=Value3*Value1;
-    	    Value3*=Value2;
-    	    Value1*=Value2;
-            Value3*=Value1;
+	    repeat2048(asm volatile ("mul.rz.f32 %0, %1, %2;": "=f"(Value1) : "f"(I1), "f"(I2));)
         }
     }
     __syncthreads();
 
-    Value=Value1;
-    C[i]=Value*Value2;
-    __syncthreads();
+    C[i]=Value1;
 
 }
 
@@ -415,9 +277,6 @@ __global__ void INT_ADD(const float* A, const float* B, float* C, int N)
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     //Do Some Computation
     unsigned Value1=0;
-    unsigned Value2=0;
-    unsigned Value3=0;
-    unsigned Value=0;
     unsigned I1=(unsigned)A[i];
     unsigned I2=(unsigned)B[i];
 
@@ -427,48 +286,18 @@ __global__ void INT_ADD(const float* A, const float* B, float* C, int N)
     {
         for(unsigned k=0; k<ITERATIONS;k++) 
         {
-            Value2= I1+I2;
-            Value3=I1-I2;
-            Value1-=Value2;
-            Value3+=Value1;
-            Value2-=Value3;
-            Value1+=Value3;
-    	    Value2= I1+I2;
-    	    Value3=I1-I2;
-    	    Value1=I1-Value2;
-    	    Value3+=Value1;
-    	    Value2-=Value3;
-    	    Value1+=Value3;
-            Value2= I1+I2;
-            Value3=I1-I2;
-            Value1-=Value2;
-            Value3+=Value1;
-            Value2-=Value3;
-            Value1+=Value3;
-    	    Value2= I1+I2;
-    	    Value3=I1-I2;
-    	    Value1=I1-Value2;
-    	    Value3+=Value1;
-    	    Value2-=Value3;
-    	    Value1+=Value3;
+	    repeat2048(asm volatile ("add.u32 %0, %1, %2;": "=r"(Value1) : "r"(I1), "r"(I2));)
         }
     }
     __syncthreads();
 
-    Value=Value1;
-
-    C[i]=(float)Value;
-    __syncthreads();
-
+    C[i]=(float)Value1;
 }
 __global__ void INT_DIV(const float* A, const float* B, float* C, int N)
 {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     //Do Some Computation
     unsigned Value1=0;
-    unsigned Value2=0;
-    unsigned Value3=0;
-    unsigned Value=0;
     unsigned I1=(unsigned)A[i];
     unsigned I2=(unsigned)B[i];
 
@@ -478,40 +307,18 @@ __global__ void INT_DIV(const float* A, const float* B, float* C, int N)
     {
         for(unsigned k=0; k<ITERATIONS;k++) 
         {
-            Value1=I1/(I2+1);
-    	    Value2=Value1/(I2+1);
-    	    Value3/= (I1/(I2+1) +1);
-    	    Value1/=(Value2+1);
-    	    Value3%=(Value2+1);
-    	    Value2/=(Value3+1);
-            Value1%=(Value+1);
-            Value3/=(Value1+1);
-            Value1=I1/(I2+1);
-    	    Value2=Value1/(I2+1);
-    	    Value3/= (I1/(I2+1) +1);
-    	    Value1/=(Value2+1);
-    	    Value3%=(Value2+1);
-    	    Value2/=(Value3+1);
-            Value1%=(Value+1);
-            Value3/=(Value1+1);
+	    repeat2048(asm volatile ("div.u32 %0, %1, %2;": "=r"(Value1) : "r"(I1), "r"(I2));)
         }
     }
     __syncthreads();
 
-    Value=Value1;
-
-    C[i]=(float)Value;
-    __syncthreads();
-
+    C[i]=(float)Value1;
 }
 __global__ void INT_LOGIC(const float* A, const float* B, float* C, int N)
 {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     //Do Some Computation
     unsigned Value1=0;
-    unsigned Value2=0;
-    unsigned Value3=0;
-    unsigned Value=0;
     unsigned I1=(unsigned)A[i];
     unsigned I2=(unsigned)B[i];
 
@@ -521,26 +328,13 @@ __global__ void INT_LOGIC(const float* A, const float* B, float* C, int N)
     {
         for(unsigned k=0; k<ITERATIONS;k++) 
         {
-            Value1=I1 & I2;
-	    Value2 |= (I1 | I2);
-	    Value3=I1^Value2;
-	    Value2|=Value1;
-	    Value2=Value3 & Value2;
-	    Value1=Value2 ^ Value3;
-            Value1=I1 & I2;
-	    Value2 |= (I1 | I2);
-	    Value3=I1^Value2;
-	    Value2|=Value1;
-	    Value2=Value3 & Value2;
-	    Value1=Value2 ^ Value3;
+	    repeat2048(asm volatile ("and.b32 %0, %1, %2;": "=r"(Value1) : "r"(I1), "r"(I2));)
+	    repeat2048(asm volatile ("or.b32 %0, %1, %2;": "=r"(Value1) : "r"(I1), "r"(I2));)
         }
     }
     __syncthreads();
 
-    Value=Value1;
-
-    C[i]=(float)Value;
-    __syncthreads();
+    C[i]=(float)Value1;
 
 }
 __global__ void INT_MUL(const float* A, const float* B, float* C, int N)
@@ -548,9 +342,6 @@ __global__ void INT_MUL(const float* A, const float* B, float* C, int N)
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     //Do Some Computation
     unsigned Value1=0;
-    unsigned Value2=0;
-    unsigned Value3=0;
-    unsigned Value=0;
     unsigned I1=(unsigned)A[i];
     unsigned I2=(unsigned)B[i];
 
@@ -560,27 +351,12 @@ __global__ void INT_MUL(const float* A, const float* B, float* C, int N)
     {
         for(unsigned k=0; k<ITERATIONS;k++) 
         {
-            Value1=I1*I2;
-            Value1*=Value2;
-            Value3=Value1*I2;
-            Value2*=I1*Value3;
-            Value1*=Value2;
-            Value3*=Value1;
-            Value1=I1*I2;
-            Value1*=Value2;
-            Value3=Value1*I2;
-            Value2*=I1*Value3;
-            Value1*=Value2;
-            Value3*=Value1;
+	    repeat2048(asm volatile ("mul.lo.u32 %0, %1, %2;": "=r"(Value1) : "r"(I1), "r"(I2));)
         }
     }
     __syncthreads();
 
-    Value=Value1;
-
-    C[i]=(float)Value;
-    __syncthreads();
-
+    C[i]=(float)Value1;
 }
 int main(int argc, const char** argv)
 {

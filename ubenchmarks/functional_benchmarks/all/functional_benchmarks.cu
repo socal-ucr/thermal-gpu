@@ -7,6 +7,7 @@
 // includes, project
 #include "../include/sdkHelper.h"  // helper for shared functions common to CUDA SDK samples
 #include "../include/argparse.hpp"
+#include "../include/repeat.h"
 //#include <shrQATest.h>
 //#include <shrUtils.h>
 
@@ -87,23 +88,8 @@ __global__ void SFU_EXP(const float* A, const float* B, float* C, int N)
     if(smid == SMID)
     {
         for(unsigned k=0; k<ITERATIONS;k++) 
-        {
-            Value2=exp(Value1);
-            Value3=exp(Value2);
-            Value1=exp(Value3);
-            Value2=exp(Value1);
-            Value2=exp(Value1);
-            Value3=exp(Value2);
-            Value1=exp(Value3);
-            Value2=exp(Value1);
-            Value2=exp(Value1);
-            Value3=exp(Value2);
-            Value1=exp(Value3);
-            Value2=exp(Value1);
-            Value2=exp(Value1);
-            Value3=exp(Value2);
-            Value1=exp(Value3);
-            Value2=exp(Value1);
+	{
+            repeat2048(Value2=expf(Value1);Value3=expf(Value2);Value1=expf(Value3);)
         }
     }
    Value=Value3-Value2;		
@@ -129,26 +115,13 @@ __global__ void SFU_LOG(const float* A, const float* B, float* C, int N)
     {
         for(unsigned k=0; k<ITERATIONS;k++)
         {
-            Value1=log2((I1));
-            Value2=log2((I2));
-            Value3=log2((Value2));
-            Value2=log2((Value1));
-            Value1=log2((I1));
-            Value2=log2((I2));
-            Value3=log2((Value2));
-            Value2=log2((Value1));
-            Value1=log2((I1));
-            Value2=log2((I2));
-            Value3=log2((Value2));
-            Value2=log2((Value1));
-            Value1=log2((I1));
-            Value2=log2((I2));
-            Value3=log2((Value2));
-            Value2=log2((Value1));
+	    repeat2048(asm volatile ("lg2.approx.ftz.f32 %0, %2;\n\t"
+				     "lg2.approx.ftz.f32 %1, %3;" :
+				     "=f"(Value1),"=f"(Value2) : "f" (I1), "f"(I2));)
         }
     }
 
-   Value=Value3-Value2;		
+   Value=Value3-Value2+Value1;		
 
     C[i]=Value;
     __syncthreads();
@@ -169,28 +142,15 @@ __global__ void SFU_SIN(const float* A, const float* B, float* C, int N)
     if(smid == SMID)
     {
         for(unsigned k=0; k<ITERATIONS;k++) 
-        {    
-            Value2=cos(Value1);
-            Value3=sin(Value2);
-            Value2=cos(Value1);
-            Value1=sin(Value2);
-            Value2=cos(Value1);
-            Value3=sin(Value2);
-            Value2=cos(Value1);
-            Value1=sin(Value2);
-            Value2=cos(Value1);
-            Value3=sin(Value2);
-            Value2=cos(Value1);
-            Value1=sin(Value2);
-            Value2=cos(Value1);
-            Value3=sin(Value2);
-            Value2=cos(Value1);
-            Value1=sin(Value2);
+        {  
+	    repeat2048(asm volatile ("sin.approx.ftz.f32 %0, %2;\n\t"
+				     "sin.approx.ftz.f32 %1, %3;" :
+				     "=f"(Value2),"=f"(Value3) : "f" (Value1), "f"(Value2));)  
         }
     }
 
 
-   Value=Value3-Value2;		
+   Value=Value3-Value2+Value1;		
 
     C[i]=Value;
     __syncthreads();
@@ -202,10 +162,9 @@ __global__ void SFU_SQRT(const float* A, const float* B, float* C, int N)
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     //Do Some Computation
     float Value1=0;
-    float Value2=99999;
-    float Value3=0;
+    float Value2=9999999;
+    float Value3=9999999;
     float Value=0;
-    float I2=B[i];
 
     //square root
     unsigned int smid = get_smid();
@@ -213,29 +172,12 @@ __global__ void SFU_SQRT(const float* A, const float* B, float* C, int N)
     {
         for(unsigned long k=0; k<ITERATIONS;k++) 
         {
-            Value1=Value2*Value2;
-            Value1=sqrt(abs(Value1));
-            Value2=sqrt(abs(I2))*sqrt(abs(I2));
-            Value3=sqrt(abs(Value2));
-            Value2=sqrt(abs(Value1));
-            Value1=Value2*Value2;
-            Value1=sqrt(abs(Value1));
-            Value2=sqrt(abs(I2))*sqrt(abs(I2));
-            Value3=sqrt(abs(Value2));
-            Value2=sqrt(abs(Value1));
-            Value1=Value2*Value2;
-            Value1=sqrt(abs(Value1));
-            Value2=sqrt(abs(I2))*sqrt(abs(I2));
-            Value3=sqrt(abs(Value2));
-            Value2=sqrt(abs(Value1));
-            Value1=Value2*Value2;
-            Value1=sqrt(abs(Value1));
-            Value2=sqrt(abs(I2))*sqrt(abs(I2));
-            Value3=sqrt(abs(Value2));
-            Value2=sqrt(abs(Value1));
+	    repeat2048(asm volatile ("sqrt.approx.ftz.f32 %0, %2;\n\t"
+				     "sqrt.approx.ftz.f32 %1, %3;" :
+				     "=f"(Value),"=f"(Value1) : "f" (Value2), "f"(Value3));)  
         }
     }
-   Value=Value3-Value2;		
+   Value=Value3-Value2+Value1;		
 
     C[i]=Value;
     __syncthreads();

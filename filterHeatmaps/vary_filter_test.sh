@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-for FILTER in {1..50..1}
+for FILTER in {1..1200..1}
 do
-    ./filterHeatmaps.py --filter $FILTER &
-    if [ $(($FILTER % 8)) -eq  0 ]
+    ./extractPowermapsOnly.py --filter $FILTER &
+    if [ $(($FILTER % 12)) -eq  0 ]
     then
         wait
     fi

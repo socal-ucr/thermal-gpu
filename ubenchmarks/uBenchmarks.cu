@@ -5,9 +5,9 @@
 #include <string>
 
 // includes, project
-#include "../include/sdkHelper.h"  // helper for shared functions common to CUDA SDK samples
-#include "../include/argparse.hpp"
-#include "../include/repeat.h"
+#include "include/sdkHelper.h"  // helper for shared functions common to CUDA SDK samples
+#include "include/argparse.hpp"
+#include "include/repeat.h"
 //#include <shrQATest.h>
 //#include <shrUtils.h>
 
@@ -18,7 +18,7 @@
 #define NUM_OF_BLOCKS 60
 #define ITERATIONS 10000000000
 #define SMID 14
-#include "../include/ContAcq-IntClk.h"
+#include "include/ContAcq-IntClk.h"
 
 // Variables
 float* h_A;
@@ -387,6 +387,86 @@ __global__ void INT_MUL(const float* A, const float* B, float* C, int N)
 
     C[i]=(float)Value1;
 }
+
+///////////////////// CACHE and MEMORY BENCHMARKS/////////////////////////////////
+__global__ void L1(float* A, float* C, int N){
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    //Do Some Computation
+
+    //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
+    //unsigned j=0, k=0;
+    unsigned k=0;
+    // Excessive Addition access
+    unsigned int smid = get_smid();
+    int temp = 0;
+    if(smid == SMID)
+    {
+	// Fill the L1 cache, Miss on first LD, Hit on subsequent LDs
+	for(k=0; k<ITERATIONS; ++k){
+            repeat2048(asm volatile ("ld.global.u32 %0, [%1];" : "=r"(temp): "l" (A+tid));)
+	}
+
+	C[tid]=temp;
+    }
+    __syncthreads();
+}
+__global__ void L1_ALL(float* A, float* C, int N){
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    //Do Some Computation
+
+    //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
+    //unsigned j=0, k=0;
+    unsigned k=0;
+    // Excessive Addition access
+    unsigned int smid = get_smid();
+    int temp = 0;
+    // Fill the L1 cache, Miss on first LD, Hit on subsequent LDs
+    for(k=0; k<ITERATIONS; ++k){
+        repeat2048(asm volatile ("ld.global.u32 %0, [%1];" : "=r"(temp): "l" (A+tid));)
+    }
+
+    C[tid]=temp;
+    __syncthreads();
+}
+
+__global__ void L2(float* A, float* C, int N){
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    //Do Some Computation
+
+    //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
+    //unsigned j=0, k=0;
+    unsigned k=0;
+    // Excessive Addition access
+    unsigned int smid = get_smid();
+    int temp = 0;
+    if(smid == SMID)
+    {
+	// Fill the L1 cache, Miss on first LD, Hit on subsequent LDs
+	for(k=0; k<ITERATIONS; ++k){
+            repeat2048(asm volatile ("ld.cg.u32 %0, [%1];" : "=r"(temp): "l" (A+tid));)
+	}
+
+	C[tid]=temp;
+    }
+    __syncthreads();
+}
+
+__global__ void L2_ALL(float* A, float* C, int N){
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    //Do Some Computation
+
+    //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
+    //unsigned j=0, k=0;
+    unsigned k=0;
+    int temp = 0;
+    for(k=0; k<ITERATIONS; ++k){
+        repeat2048(asm volatile ("ld.cg.u32 %0, [%1];" : "=r"(temp): "l" (A+tid));)
+    }
+
+    C[tid]=temp;
+    __syncthreads();
+}
+
 int main(int argc, const char** argv)
 {
     ArgumentParser parser;
@@ -447,6 +527,14 @@ int main(int argc, const char** argv)
         INT_LOGIC<<<dimGrid,dimBlock>>>(d_A, d_B, d_C, N);
     else if(test_name.compare("INT_MUL") == 0)
         INT_MUL<<<dimGrid,dimBlock>>>(d_A, d_B, d_C, N);
+    else if(test_name.compare("L1") == 0)
+        L1<<<dimGrid,dimBlock>>>(d_A, d_C, N);
+    else if(test_name.compare("L1_ALL") == 0)
+        L1_ALL<<<dimGrid,dimBlock>>>(d_A, d_C, N);
+    else if(test_name.compare("L2") == 0)
+        L2<<<dimGrid,dimBlock>>>(d_A, d_C, N);
+    else if(test_name.compare("L2_ALL") == 0)
+        L2_ALL<<<dimGrid,dimBlock>>>(d_A, d_C, N);
     else
     {
         printf("INVALID TEST\n");

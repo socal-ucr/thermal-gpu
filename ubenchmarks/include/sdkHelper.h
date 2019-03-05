@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <string>
 #include <assert.h>
-#include <exception.h>
 #include <math.h>
 
 #include <fstream>

@@ -16,8 +16,8 @@
 #include <cuda_runtime.h>
 
 #define THREADS_PER_BLOCK 1024
-#define NUM_OF_BLOCKS 6
-#define ITERATIONS 100000000
+#define NUM_OF_BLOCKS 30
+#define ITERATIONS 10000000000
 
 #define LINE_SIZE 	128
 #define SETS		64

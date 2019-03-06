@@ -17,7 +17,7 @@
 #define THREADS_PER_BLOCK 1024
 #define NUM_OF_BLOCKS 60
 #define ITERATIONS 10000000000
-#define SMID 14
+#define SMID 5
 #include "include/ContAcq-IntClk.h"
 
 // Variables
@@ -467,6 +467,55 @@ __global__ void L2_ALL(float* A, float* C, int N){
     __syncthreads();
 }
 
+__global__ void I_CACHE(float* A, float* C, int N){
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    //Do Some Computation
+
+    //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
+    //unsigned j=0, k=0;
+    unsigned k=0;
+    int temp = 0;
+    for(k=0; k<ITERATIONS; ++k){
+LABEL:
+        goto LABEL;
+    }
+
+    C[tid]=temp;
+    __syncthreads();
+}
+
+__global__ void REG_FILE(float* A, float* C, int N){
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    //Do Some Computation
+
+    //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
+    //unsigned j=0, k=0;
+    unsigned k=0;
+    unsigned long temp = 123456789;
+    unsigned long temp1 = 0;
+    for(k=0; k<ITERATIONS; ++k){
+        repeat2048(asm volatile ("mov.u64 %0, %1;" : "=l"(temp1): "l" (temp));)
+    }
+    k = temp1;
+    C[tid]=temp;
+    __syncthreads();
+}
+__global__ void SHD_MEM(float* A, float* C, int N){
+    int tid = threadIdx.x;
+    //Do Some Computation
+
+    //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
+    //unsigned j=0, k=0;
+    __shared__ unsigned s_A[THREADS_PER_BLOCK];
+    unsigned k=0;
+    unsigned temp = A[tid];
+    for(k=0; k<ITERATIONS; ++k){
+        repeat2048(asm volatile ("st.shared.u32 [%0], %1;" ::"l"(s_A+tid),"r" (temp));)
+    }
+    C[tid]=temp;
+    __syncthreads();
+}
+
 int main(int argc, const char** argv)
 {
     ArgumentParser parser;
@@ -474,7 +523,6 @@ int main(int argc, const char** argv)
 
     parser.parse(argc, argv);
     std::string test_name = parser.retrieve<std::string>("test");
-   // printf("Microbenchmarks-%s\n",test_name.c_str());
     int N = THREADS_PER_BLOCK*NUM_OF_BLOCKS;
     size_t size = N * sizeof(float);
     // Allocate input vectors h_A and h_B in host memory
@@ -498,9 +546,10 @@ int main(int argc, const char** argv)
     checkCudaErrors( cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice) );
     checkCudaErrors( cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice) );
 
-    dim3 dimGrid(NUM_OF_BLOCKS,1);
-    dim3 dimBlock(THREADS_PER_BLOCK,1);
+    dim3 dimGrid(NUM_OF_BLOCKS,1,1);
+    dim3 dimBlock(THREADS_PER_BLOCK,1,1);
 
+    printf("Microbenchmarks-%s\n",test_name.c_str());
     if(test_name.compare("SM") == 0)
         SM<<<dimGrid,dimBlock>>>(d_A, d_B, d_C, N);
     else if(test_name.compare("SFU_EXP") == 0)
@@ -535,6 +584,12 @@ int main(int argc, const char** argv)
         L2<<<dimGrid,dimBlock>>>(d_A, d_C, N);
     else if(test_name.compare("L2_ALL") == 0)
         L2_ALL<<<dimGrid,dimBlock>>>(d_A, d_C, N);
+    else if(test_name.compare("I_CACHE") == 0)
+        I_CACHE<<<dimGrid,dimBlock>>>(d_A, d_C, N);
+    else if(test_name.compare("REG_FILE") == 0)
+        REG_FILE<<<dimGrid,dimBlock>>>(d_A, d_C, N);
+    else if(test_name.compare("SHD_MEM") == 0)
+        SHD_MEM<<<dimGrid,dimBlock>>>(d_A, d_C, N);
     else
     {
         printf("INVALID TEST\n");

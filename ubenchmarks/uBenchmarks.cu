@@ -475,9 +475,13 @@ __global__ void I_CACHE(float* A, float* C, int N){
     //unsigned j=0, k=0;
     unsigned k=0;
     int temp = 0;
-    for(k=0; k<ITERATIONS; ++k){
+    unsigned int smid = get_smid();
+    if(smid == SMID)
+    {
+        for(k=0; k<ITERATIONS; ++k){
 LABEL:
-        goto LABEL;
+            goto LABEL;
+        }
     }
 
     C[tid]=temp;
@@ -493,26 +497,35 @@ __global__ void REG_FILE(float* A, float* C, int N){
     unsigned k=0;
     unsigned long temp = 123456789;
     unsigned long temp1 = 0;
-    for(k=0; k<ITERATIONS; ++k){
-        repeat2048(asm volatile ("mov.u64 %0, %1;" : "=l"(temp1): "l" (temp));)
+    unsigned int smid = get_smid();
+    if(smid == SMID)
+    {
+        for(k=0; k<ITERATIONS; ++k){
+            repeat2048(asm volatile ("mov.u64 %0, %1;" : "=l"(temp1): "l" (temp));)
+        }
     }
     k = temp1;
     C[tid]=temp;
     __syncthreads();
 }
 __global__ void SHD_MEM(float* A, float* C, int N){
+    __shared__ unsigned s_A[THREADS_PER_BLOCK];
     int tid = threadIdx.x;
+    s_A[tid] = A[tid];
     //Do Some Computation
 
     //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
     //unsigned j=0, k=0;
-    __shared__ unsigned s_A[THREADS_PER_BLOCK];
     unsigned k=0;
-    unsigned temp = A[tid];
-    for(k=0; k<ITERATIONS; ++k){
-        repeat2048(asm volatile ("st.shared.u32 [%0], %1;" ::"l"(s_A+tid),"r" (temp));)
+    unsigned temp = 0;
+    unsigned int smid = get_smid();
+    if(smid == SMID)
+    {
+        for(k=0; k<ITERATIONS; ++k){
+            repeat2048(asm volatile ("ld.shared.u32 %0, [%1];" : "=r"(temp): "l" (s_A+tid));)
+        }
     }
-    C[tid]=temp;
+    C[tid]=s_A[tid];
     __syncthreads();
 }
 

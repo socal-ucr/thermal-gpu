@@ -1,0 +1,1 @@
+GPU Elapsed Time = 7002.9

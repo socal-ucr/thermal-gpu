@@ -15,7 +15,7 @@
 #include <cuda_runtime.h>
 
 #define THREADS_PER_BLOCK 1024
-#define NUM_OF_BLOCKS 60
+#define NUM_OF_BLOCKS 20
 #define ITERATIONS 10000000000
 #define SMID 5
 #include "include/ContAcq-IntClk.h"

@@ -7,5 +7,6 @@ do
     uBM=${uBM%_power.txt}
     TIME="$(awk '{print $5}' ${uBM}_time.txt)"
     POWER="$(awk '{total += $1} END {print total/NR}' ${uBM}_power.txt)"
-    echo "print(((${POWER}-${IDLE_POWER}.) * (${TIME}/1000.))/ (${INSTS}. * 12288.))" | python
+    EPI=$(echo "print(((${POWER}-${IDLE_POWER}.) * (${TIME}/1000.))/ (${INSTS}. * 12288.))" | python)
+    echo ${uBM%_asm_1000000iter},${EPI}
 done

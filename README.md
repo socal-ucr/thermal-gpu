@@ -9,7 +9,7 @@ Single-instruction benchmarks that run on GPGPU-SIM
 
 ### How to use
 
-1) **makefile:**Define the following environment variables on top of the Makefile:
+1) **makefile:** define the following environment variables on top of the Makefile:
 
         CUDA_INSTALL_PATH
         NVIDIA_COMPUTE_SDK_LOCATION

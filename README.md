@@ -9,7 +9,7 @@ Single-instruction benchmarks that run on GPGPU-SIM
 
 ### How to use
 
-1) **makefile:** define the following environment variables on top of the Makefile:
+1) **Makefile:** define the following environment variables on top of the Makefile:
 
         CUDA_INSTALL_PATH
         NVIDIA_COMPUTE_SDK_LOCATION
@@ -30,5 +30,14 @@ Single-instruction benchmarks that run on GPGPU-SIM
    run ```set_env``` script to copy GPU architecture config file to ```bin/release```
 
 
-3) **set_env script:** gets the GPU architecture supported by GPGPU-SIM as input argument. (default is: GTX480)
+3) **set_env script:** gets the GPU architecture supported by GPGPU-SIM as input argument. Supported archutectures are as follows:
 
+* GTX480 (will be copied to ```bin/release``` by default, i.e. no argument)
+* QuadroFX5600 
+* QuadroFX5800  
+* TeslaC2050 
+
+### Run example
+From nanobenchmarks root dir, run the follwing command:
+
+```cd bin/release && ./ADD```

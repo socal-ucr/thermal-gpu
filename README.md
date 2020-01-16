@@ -5,7 +5,7 @@
 ## ubenchmarks
 
 ## Nano Benchmarks (GPGPU-SIM)
-Single instruction benchmarks that run on GPGPU-SIM
+Single-instruction benchmarks that run on GPGPU-SIM
 
 ### How to use
 

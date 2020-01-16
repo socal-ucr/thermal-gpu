@@ -14,13 +14,13 @@ Single instruction benchmarks that run on GPGPU-SIM
         CUDA_INSTALL_PATH
         NVIDIA_COMPUTE_SDK_LOCATION
 
-   The first, ```CUDA\_INSTALL\_PATH```, should point to the directory you installed
+   The first, ```CUDA_INSTALL_PATH```, should point to the directory you installed
    the NVIDIA CUDA Toolkit (e.g., /usr/local/cuda).
 
-   The second, ```NVIDIA\_COMPUTE\_SDK\_LOCATION```, should point to the directory you
-   installed the NVIDIA GPU Computing SDK (e.g., ```~/NVIDIA\_GPU\_Computing\_SDK```)
+   The second, ```NVIDIA_COMPUTE_SDK_LOCATION```, should point to the directory you
+   installed the NVIDIA GPU Computing SDK (e.g., ```~/NVIDIA_GPU_Computing_SDK```)
 
-   You must also ensure your ```PATH``` includes ```$CUDA\_INSTALL\_PATH/bin```.
+   You must also ensure your ```PATH``` includes ```$CUDA_INSTALL_PATH/bin```.
 
 
 2) **Error troubleshooting:** in case you encounter the following error when you want to run nano benchmarks:

@@ -38,6 +38,6 @@ Single-instruction benchmarks that run on GPGPU-SIM
 * TeslaC2050 
 
 ### Run example
-From nanobenchmarks root dir, run the follwing command:
+From nanobenchmarks root dir, run the following command:
 
 ```cd bin/release && ./ADD```

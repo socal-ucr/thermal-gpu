@@ -25,7 +25,7 @@ Single instruction benchmarks that run on GPGPU-SIM
 
 2) **Error troubleshooting:** in case you encounter the following error when you want to run nano benchmarks:
 
-	GPGPU-Sim \** ERROR: Cannot open config file 'gpgpusim.config'
+        GPGPU-Sim \** ERROR: Cannot open config file 'gpgpusim.config'
 
    run ```set_env``` script to copy GPU architecture config file to ```bin/release```
 

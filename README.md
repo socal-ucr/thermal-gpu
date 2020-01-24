@@ -30,10 +30,9 @@ Single-instruction benchmarks that run on GPGPU-SIM
 * QuadroFX5800  
 * TeslaC2050 
 
-- To compile and copy GTX480 config file run: *** make GPU_ARCH=GTX480***
+...To compile and copy GTX480 config file run: ```make GPU_ARCH=GTX480```
 
-- To just copy GTX480 config file run: *** make arch_conf GPU_ARCH=GTX480***
-
+...To just copy GTX480 config file run: ```make arch_conf GPU_ARCH=GTX480```
 2) **Error troubleshooting:** in case you encounter the following error when you want to run nano benchmarks:
 
         GPGPU-Sim \** ERROR: Cannot open config file 'gpgpusim.config'

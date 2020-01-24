@@ -34,15 +34,13 @@ Single-instruction benchmarks that run on GPGPU-SIM
 
 * To just copy GTX480 config file run: ```make arch_conf GPU_ARCH=GTX480```
 
-2) **Error troubleshooting:** in case you encounter the following error when you want to run nano benchmarks:
-
-        GPGPU-Sim \** ERROR: Cannot open config file 'gpgpusim.config'
-
-   run ```set_env``` script to copy GPU architecture config file to ```bin/release```
-
-
-
 ### Run example
 First make sure the GPGPU-SIM architecture config file is copied to ```/compute/bin/release``` (See above, **GPU_ARCH**). Then, from nanobenchmarks root dir, run the following command:
 
 ```cd compute/bin/release && ./ADD```
+
+* In case you encounter the following error when you want to run nano benchmarks, it means the GPGPU-SIM architecture config file is not in ```/compute/bin/release```.
+
+        GPGPU-Sim \** ERROR: Cannot open config file 'gpgpusim.config'
+
+   run ```make arch_conf``` script to copy GPU architecture (default: GTX480) config file to ```compute/bin/release```

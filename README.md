@@ -25,10 +25,10 @@ Single-instruction benchmarks that run on GPGPU-SIM
 
 * **GPU_ARCH** is a make variable for setting the GPU architecture supported by GPGPU-SIM to run compiled binaries. Supported architectures are as follows:
 
-* GTX480 (will be copied to ```compute/bin/release``` by default, i.e. no argument)
-* QuadroFX5600 
-* QuadroFX5800  
-* TeslaC2050 
+&nbsp;&nbsp;&nbsp;&nbsp;* GTX480 (will be copied to ```compute/bin/release``` by default, i.e. no argument)
+&nbsp;&nbsp;&nbsp;&nbsp;* QuadroFX5600 
+&nbsp;&nbsp;&nbsp;&nbsp;* QuadroFX5800  
+&nbsp;&nbsp;&nbsp;&nbsp;* TeslaC2050 
 
 &nbsp;&nbsp;&nbsp;&nbsp;To compile and copy GTX480 config file run: ```make GPU_ARCH=GTX480```
 

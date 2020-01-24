@@ -43,6 +43,6 @@ Single-instruction benchmarks that run on GPGPU-SIM
 
 
 ### Run example
-From nanobenchmarks root dir, run the following command:
+First make sure the GPGPU-SIM architecture config file is copied to ```/compute/bin/release``` (See above, **GPU_ARCH**). Then, from nanobenchmarks root dir, run the following command:
 
 ```cd compute/bin/release && ./ADD```

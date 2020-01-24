@@ -7,15 +7,15 @@ GPU_ARCH=GTX480
 if [ -z ${1} ]; then echo "GTX480 is set as default architecture for runnig on GPGPU-SIM"; else GPU_ARCH=$1; fi
 
 #Check for BIDIR and create it in case it does not exist
-BINDIR=bin
+BINDIR=compute/bin
 if [ ! -d "$BINDIR" ]; then
     # BINDIR does no exist
     mkdir bin
     if [ ! -d "$BINDIR/release" ]; then
         # release does no exist
-        mkdir bin/release
+        mkdir compute/bin/release
     fi
 fi
 
 #Copy GPGPU-SIM GPU_ARCH config file for simulation
-cp $GPGPUSIM_ROOT/configs/$GPU_ARCH/* bin/release/
+cp $GPGPUSIM_ROOT/configs/$GPU_ARCH/* $BINDIR/release/

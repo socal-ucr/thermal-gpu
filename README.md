@@ -23,6 +23,17 @@ Single-instruction benchmarks that run on GPGPU-SIM
 * You must also ensure your ```PATH``` includes ```$CUDA_INSTALL_PATH/bin```.
 
 
+* **GPU_ARCH** is a make variable for setting the GPU architecture supported by GPGPU-SIM to run compiled binaries. Supported archutectures are as follows:
+
+* GTX480 (will be copied to ```compute/bin/release``` by default, i.e. no argument)
+* QuadroFX5600 
+* QuadroFX5800  
+* TeslaC2050 
+
+- To compile and copy GTX480 config file run: *** make GPU_ARCH=GTX480***
+
+- To just copy GTX480 config file run: *** make arch_conf GPU_ARCH=GTX480***
+
 2) **Error troubleshooting:** in case you encounter the following error when you want to run nano benchmarks:
 
         GPGPU-Sim \** ERROR: Cannot open config file 'gpgpusim.config'
@@ -30,12 +41,6 @@ Single-instruction benchmarks that run on GPGPU-SIM
    run ```set_env``` script to copy GPU architecture config file to ```bin/release```
 
 
-3) **set_env script:** gets the GPU architecture supported by GPGPU-SIM as input argument. Supported archutectures are as follows:
-
-* GTX480 (will be copied to ```bin/release``` by default, i.e. no argument)
-* QuadroFX5600 
-* QuadroFX5800  
-* TeslaC2050 
 
 ### Run example
 From nanobenchmarks root dir, run the following command:

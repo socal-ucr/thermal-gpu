@@ -71,8 +71,6 @@ void* monitor_power(void*)
         avgPower = avgPower + ((sample_power - avgPower) / (numSamples + 1));
         numSamples++;
     }
-
-    printf("%d,%d\n",avgPower, numSamples);
     return NULL; 
 }
 
@@ -104,6 +102,6 @@ void end_power_monitor()
     voltage_current_v2_destroy(&vc[2]);
     ipcon_destroy(&ipcon); // Calls ipcon_disconnect internally
 
-    printf("AvgPower: %d\n",avgPower);
+    printf("AvgPower,%d\n",avgPower);
 }
 

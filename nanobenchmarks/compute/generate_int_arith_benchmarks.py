@@ -16,7 +16,7 @@ def generate_code(nb_instr, instr, template_code):
 
 	for i in range(nb_instr):
 		
-		generated_instr_code += "\t\t\t\""+instr+"."+instr_type+" %r12, "
+		generated_instr_code += "\t\t\t\""+instr+"."+source_s_u+str(source_width)+" %r12, "
 		instr_operands = ""
 		for j in range(instr_nb_source_operands):
 			instr_operands += "%r"+str(13+j)+", "

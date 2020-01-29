@@ -1,5 +1,5 @@
-CC = /home/ajaha004/apps/cuda40/cuda/bin/nvcc -arch=sm_20
-CFLAGS = -O0 -Xcompiler -O0 -Xptxas -O0
+CC = /home/ajaha004/apps/cuda10/cuda/bin/nvcc 
+CFLAGS = -cudart shared -O0 -Xptxas #-O0 -Xcompiler -O0 -Xptxas -O0
 
 SRCS   := $(wildcard *.cu)
 BINS   := $(patsubst %.cu,%,$(SRCS))
@@ -7,10 +7,9 @@ OBJS   := $(patsubst %,%.o,$(BINS))
 
 .PHONY: all
 
-%.o: %.cu 
+%: %.cu 
 	$(CC) $(CFLAGS) -c $< -o $@
-%: %.o 
-	$(CC) $(CFLAGS) -o $@ $^ 
+
 all: $(BINS)
 
 clean:

@@ -12,12 +12,11 @@ if [ -z ${GPGPUSIM_ROOT} ]; then
 fi
 
 make clean
+rm -rf all_stats _cuobjdump* *.log _ptx* *.pyc gpgpu* config* *.xml _app_cuda_version* *.ptx* checkpoint*
 
 echo -e "${RED}Generating benchmarks with $NB_INSTR instructions${NC}"
 python generate_int_arith_benchmarks.py $NB_INSTR
 
-rm -rf all_stats _cuobjdump* *.log _ptx* *.pyc gpgpu* config* *.xml _app_cuda_version* *.ptx* checkpoint*
-exit
 echo -e "${RED}Compiling...${NC}"
 make -j$(nproc) > /dev/null
 

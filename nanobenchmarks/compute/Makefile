@@ -1,4 +1,4 @@
-CC = /home/ajaha004/apps/cuda10/cuda/bin/nvcc 
+CC = /home/ajaha004/apps/cuda10/cuda/bin/nvcc -arch sm_53 
 CFLAGS = -cudart shared -O0 -Xptxas #-O0 -Xcompiler -O0 -Xptxas -O0
 
 SRCS   := $(wildcard *.cu)

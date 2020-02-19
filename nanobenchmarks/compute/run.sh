@@ -19,7 +19,7 @@ rm -rf all_stats _cuobjdump* *.log _ptx* *.pyc gpgpu* config* *.xml _app_cuda_ve
 ###################################
 # Generation and compilation
 echo -e "${RED}Generating benchmarks with $NB_INSTR instructions${NC}"
-python generate_int_arith_benchmarks.py $NB_INSTR
+python generate_arith_benchmarks.py $NB_INSTR
 
 echo -e "${RED}Compiling...${NC}"
 make -j$(nproc) > /dev/null

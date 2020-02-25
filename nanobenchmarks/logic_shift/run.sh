@@ -3,29 +3,38 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 
-GPU_ARCH=SM2_GTX480 # Default arch
-NB_INSTR=4096	
+GPU_ARCH=SM2_GTX480 	# Default GPGPUSIM config arch
+NB_INSTR=4096		# Number of instructions in each benchmark
 
+##################################
 # Check if GPGPUSIM setup_environment is sourced
 if [ -z ${GPGPUSIM_ROOT} ]; then 
 	echo "Please set GPGPU-SIM environment variables"; 
 	exit 110; 
 fi
 
+##################################
 # Cleaning
-make clean
+make clean > /dev/null
 rm -rf all_stats _cuobjdump* *.log _ptx* *.pyc gpgpu* config* *.xml _app_cuda_version* *.ptx* checkpoint* __pycache__
+
+##################################
+# Copy GPGPUSIM Config filea
+cp $GPGPUSIM_ROOT/configs/tested-cfgs/$GPU_ARCH/* ./ && echo -e "${RED}$GPU_ARCH is going to be used as gpgpusim arch confing file${NC}"
 
 ###################################
 # Generation and compilation
 echo -e "${RED}Generating benchmarks with $NB_INSTR instructions${NC}"
-python generate_arith_benchmarks.py $NB_INSTR
+python generate_benchmarks.py $NB_INSTR
 
 echo -e "${RED}Compiling...${NC}"
-make -j$(nproc) > /dev/null
+if make -j$(nproc) &> compile.log; then
+	rm compile.log
+else
+	echo -e "${RED}Compiled FAILED. see compile.log${NC}"
+	exit
+fi
 
-# Copy GPGPUSIM Config filea
-cp $GPGPUSIM_ROOT/configs/tested-cfgs/$GPU_ARCH/* ./ && echo -e "${RED}$GPU_ARCH is copied as gpgpusim arch confing file${NC}"
 
 ##################################
 # Stats collection
@@ -35,7 +44,11 @@ echo -e "${RED}Running benchmarks...${NC}"
 for i in *.cu; 
 do 
 	echo $i; 
-	./${i::-3} > /dev/null && \
-	printf "%s," ${i::-3} >> all_stats && \
-	sed -n 2p gpgpu_inst_stats.txt >> all_stats;
+	if ./${i::-3} > ./${i::-3}.log 2>&1; then
+        	rm ./${i::-3}.log
+		printf "%s," ${i::-3} >> all_stats
+		sed -n 2p gpgpu_inst_stats.txt >> all_stats;
+	else
+        	echo -e "${RED}Running ${i::-3} with gpgpu-sim failed. see ${i::-3}.log${NC}"
+	fi
 done

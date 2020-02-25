@@ -31,6 +31,7 @@ COMP_OPS = {	"signed_int"	:	[".eq", ".ne", ".lt", ".le", ".gt", ".ge"],
 
 BOOL_OPS = [ ".and", ".or", ".xor", ""]	#none is used for instructions without .pred operands	
 
+#TODO: Half Precision Instructions are not listed here (See sec. 9.7.6)
 ISA_table = {
 	#instruction:   [source operandss types & comparison operation (if applicable), destination operand's types]
 	"seti"	:	["signed_int", "32s"],

@@ -1,0 +1,11 @@
+__global__ void
+Kernel()
+{
+INSERT_CODE_HERE
+}
+
+int main( int argc, char** argv) 
+{
+	Kernel<<<1, 32>>>();
+	return 0;
+}

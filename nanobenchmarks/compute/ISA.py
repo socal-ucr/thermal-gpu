@@ -1,4 +1,4 @@
-#PTX ISA 2.3
+#PTX ISA 6.3
 
 # Supported types by instruction
 #TODO: types' name are messy. Clean them

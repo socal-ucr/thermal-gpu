@@ -5,7 +5,16 @@
 ## ubenchmarks
 
 ## Nano Benchmarks (GPGPU-SIM)
-Generates, compiles, runs, and collects the stats. All arithmetic instructions with different data types supported in PTX 6.3
+Generates, compiles, runs, and collects the stats for various [PTX v6.3](https://docs.nvidia.com/cuda/pdf/ptx_isa_6.3.pdf) instructions and data types. Supported benchmarks:
+
+ - [Integer Arithmetic instructions](https://docs.nvidia.com/cuda/pdf/ptx_isa_6.3.pdf#%5B%7B%22num%22%3A509%2C%22gen%22%3A0%7D%2C%7B%22name%22%3A%22XYZ%22%7D%2C108%2C631.007%2Cnull%5D) in ```./nanobenchmarks/arithmetic``` directory.
+ 
+ - [Floating-point Arithmetic instructions](https://docs.nvidia.com/cuda/pdf/ptx_isa_6.3.pdf#%5B%7B%22num%22%3A674%2C%22gen%22%3A0%7D%2C%7B%22name%22%3A%22XYZ%22%7D%2C108%2C577.977%2Cnull%5D) in ```./nanobenchmarks/arithmetic``` directory.
+ 
+ - [Comparision and Selection instructions](https://docs.nvidia.com/cuda/pdf/ptx_isa_6.3.pdf#%5B%7B%22num%22%3A878%2C%22gen%22%3A0%7D%2C%7B%22name%22%3A%22XYZ%22%7D%2C108%2C682.917%2Cnull%5D) in ```./nanobenchmarks/comp_sel``` directory.
+ 
+ - [Logic and Shift instructions](https://docs.nvidia.com/cuda/pdf/ptx_isa_6.3.pdf#%5B%7B%22num%22%3A902%2C%22gen%22%3A0%7D%2C%7B%22name%22%3A%22XYZ%22%7D%2C108%2C343.177%2Cnull%5D) in ```./nanobenchmarks/logic_shift``` directory.
+ 
 
 ### Environment Setup
 
@@ -32,6 +41,6 @@ Generates, compiles, runs, and collects the stats. All arithmetic instructions w
 
 ### How to use
 
-After setting up the environment, execute:
+After setting up the environment, go to your target benchmark dirctory and execute:
 
 ```./run.sh```

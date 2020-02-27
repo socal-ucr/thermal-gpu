@@ -1,4 +1,4 @@
-CC = /home/ajaha004/apps/cuda80/cuda/bin/nvcc -arch=sm_61
+CC = /home/ajaha004/apps/cuda10/cuda/bin/nvcc -arch=sm_61
 CFLAGS = -cudart shared -O0 -Xptxas -O0 -Xcompiler -O0
 
 SRCS   := $(wildcard *.cu)
@@ -13,6 +13,6 @@ OBJS   := $(patsubst %,%.o,$(BINS))
 all: $(BINS)
 
 clean:
-	$(RM) $(BINS) $(SRCS) *.pyc
+	$(RM) $(BINS) $(SRCS)
 
 rebuild: clean all

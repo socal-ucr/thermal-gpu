@@ -35,7 +35,7 @@ ISA_table = {
 	"mad.lo"    		: [4, "all", 1],	# INT: all
 	"mad.wide"    		: [4, "16s_32s", 2],	# INT: 16 and 32 TODO: same as mul.wide
 	"mad.rn"   		: [4, "fp32_fp64", 1],	# FP: 32 and 64
-	"fma.rn"   		: [4, "fp", 1],		# FP: all
+	"fma.rn"   		: [4, "fp32_fp64", 1],	# FP: 32 and 64
 	"mul24.lo"  		: [3, "32s", 1],	# INT: 32 
 	"mad24.lo"  		: [4, "32s", 1],	# INT: 32
 	"sad" 	    		: [4, "all", 1],

@@ -1,18 +1,26 @@
-CC = /home/ajaha004/apps/cuda10/cuda/bin/nvcc -arch sm_53 
-CFLAGS = -cudart shared -O0 -Xptxas #-O0 -Xcompiler -O0 -Xptxas -O0
+CC = nvcc -arch=sm_61
+CFLAGS = -O0 -Xptxas -O0 -Xcompiler -O0
 
-SRCS   := $(wildcard *.cu)
-BINS   := $(patsubst %.cu,%,$(SRCS))
-OBJS   := $(patsubst %,%.o,$(BINS))
+SRCS := $(wildcard *.cu)
+BINS := $(patsubst %.cu,%,$(SRCS))
+OBJS := $(patsubst %,%.o,$(BINS))
+DEPS := ../utils/power_monitor/ip_connection.h ../utils/power_monitor/bricklet_voltage_current_v2.h
 
 .PHONY: all
 
-%: %.cu 
+
+all: dir $(BINS)
+
+%.o: %.cu $(DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-all: $(BINS)
+%: %.o $(patsubst %.h,%.o,$(DEPS))
+	$(CC) $(CFLAGS) -o bin/$@ $^
+dir:
+	mkdir -p bin
+
 
 clean:
-	$(RM) $(BINS) $(SRCS)
+	$(RM) -rf bin/ $(SRCS)
 
 rebuild: clean all

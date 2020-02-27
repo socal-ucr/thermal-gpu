@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cuda_profiler_api.h>
 #include <cuda_runtime.h>
-#include "power_monitor/power_monitor.h"
+#include "../utils/power_monitor/power_monitor.h"
 __global__ void Kernel(int n, int div)
 {
     asm volatile("{\n\t");

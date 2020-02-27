@@ -9,7 +9,7 @@ BENCHMARK="arithmetic"
 ##################################
 # Cleaning
 make clean > /dev/null
-rm -rf *_stats _cuobjdump* *.log _ptx* *.pyc gpgpu* config* *.xml _app_cuda_version* *.ptx* checkpoint* __pycache__
+rm -rf .[a-z0-9]* *_stats _cuobjdump* *.log _ptx* *.pyc gpgpu* config* *.xml _app_cuda_version* *.ptx* checkpoint* __pycache__
 
 ##################################
 # If just cleaning => exit, otherwise, compile and run all benchmarks

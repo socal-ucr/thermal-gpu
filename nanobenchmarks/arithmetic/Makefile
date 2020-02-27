@@ -1,10 +1,10 @@
 CC = nvcc -arch=sm_61
 CFLAGS = -O0 -Xptxas -O0 -Xcompiler -O0
 
-SRCS   := $(wildcard *.cu)
-BINS   := $(patsubst %.cu,%,$(SRCS))
-OBJS   := $(patsubst %,%.o,$(BINS))
-DEPS := power_monitor/ip_connection.h power_monitor/bricklet_voltage_current_v2.h
+SRCS := $(wildcard *.cu)
+BINS := $(patsubst %.cu,%,$(SRCS))
+OBJS := $(patsubst %,%.o,$(BINS))
+DEPS := ../utils/power_monitor/ip_connection.h ../utils/power_monitor/bricklet_voltage_current_v2.h
 
 .PHONY: all
 

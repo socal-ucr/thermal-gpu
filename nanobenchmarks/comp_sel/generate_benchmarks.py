@@ -1,17 +1,36 @@
 from ISA import *
 import sys
+import argparse 
+from random import random
 
+BASE_REG_NUM = 21
 # Main function for code generation, given instr name and type
 def generate_code(nb_instr, instr, comp_op, stype, template_code, dtype="", bool_op=""):
-
+	dest_width = 0
+	if not dtype == "":
+		dest_width = int(dtype[2:])
+	
+	s_fp = ""
+	if "f" in stype :
+		s_fp = ".0"
+	d_fp = ""
+	if "f" in dtype :
+		d_fp = ".0"
+	
+	source_width = int(stype[2:])
 	# Register declaration
 	# For slct, 1st,2nd,and 3rd operands are the same width as the first instruction type (i.e. dtype)
 	# Last operand width size is equal to the second instruction type (i.e. stype)
 	if instr == "slct": 
-		generated_instr_code = "\tasm volatile(\".reg "+dtype+" %r0;\\n\"\n \
-				\".reg "+dtype+" %r1;\\n\"\n \
-				\".reg "+dtype+" %r2;\\n\"\n \
-				\".reg "+stype+" %r3;\\n\"\n"
+		register_code = "\tasm volatile(\".reg "+dtype+" %r"+str(BASE_REG_NUM)+";\\n\"\n \
+				\".reg "+dtype+" %r"+str(BASE_REG_NUM+1)+";\\n\"\n \
+				\".reg "+dtype+" %r"+str(BASE_REG_NUM+2)+";\\n\"\n \
+				\".reg "+stype+" %r"+str(BASE_REG_NUM+3)+";\\n\"\n \
+				\"mov"+dtype+" %r"+str(BASE_REG_NUM)+", "+str(int(1000000*random()) % 2**source_width)+d_fp+";\\n\"\n \
+				\"mov"+dtype+" %r"+str(BASE_REG_NUM+1)+", "+str(int(1000000*random()) % 2**source_width)+d_fp+";\\n\"\n \
+				\"mov"+dtype+" %r"+str(BASE_REG_NUM+2)+", "+str(int(1000000*random()) % 2**source_width)+d_fp+";\\n\"\n \
+				\"mov"+stype+" %r"+str(BASE_REG_NUM+3)+", "+str(int(1000000*random()) % 2**source_width)+s_fp+";\\n\"\n"
+				
 	else:
 		dest_type = dtype
 		# For selp, dtype is equal to stype
@@ -20,28 +39,38 @@ def generate_code(nb_instr, instr, comp_op, stype, template_code, dtype="", bool
 		# For setp, dtype is predicate
 		elif instr == "setp":
 			dest_type = ".pred"
-		generated_instr_code = "\tasm volatile(\".reg "+dest_type+" %r0;\\n\"\n \
-				\".reg "+stype+" %r1;\\n\"\n \
-				\".reg "+stype+" %r2;\\n\"\n \
-				\".reg .pred %r3;\\n\"\n"
-
+		register_code = "\tasm volatile(\".reg "+dest_type+" %r"+str(BASE_REG_NUM)+";\\n\"\n \
+				\".reg "+stype+" %r"+str(BASE_REG_NUM+1)+";\\n\"\n \
+				\".reg "+stype+" %r"+str(BASE_REG_NUM+2)+";\\n\"\n \
+				\".reg .pred %r"+str(BASE_REG_NUM+3)+";\\n\"\n" 
+		d_fp = ""
+		if "f" in dest_type :
+			d_fp = ".0"
+		if not dest_type == ".pred":
+			register_code += "\t\t\t\t\"mov"+dest_type+" %r"+str(BASE_REG_NUM)+", "+str(int(1000000*random()) % 2**dest_width)+d_fp+";\\n\"\n"
+		register_code += "\t\t\t\t\"mov"+stype+" %r"+str(BASE_REG_NUM+1)+", "+str(int(1000000*random()) % 2**source_width)+s_fp+";\\n\"\n \
+				\"mov"+stype+" %r"+str(BASE_REG_NUM+2)+", "+str(int(1000000*random()) % 2**source_width)+s_fp+";\\n\"\n"
+	
+	register_code += ");\n"
+	template_code = template_code.replace("REGISTER_CODE", register_code)
+	compute_code = "\tasm volatile(\n";	
 	# Generate code to instruction	
 	for i in range(nb_instr):
 		# Add instruction and the dest register which always is r0
-		generated_instr_code += "\t\t\t\""+instr+comp_op+bool_op
+		compute_code += "\t\t\t\""+instr+comp_op+bool_op
 		
 		#selp and slct have an extra predicate operand (i.e. %r3)
 		if instr == "selp" or instr == "slct":
-			generated_instr_code += dtype+stype+" %r0, %r1, %r2, %r3"
+			compute_code += dtype+stype+" %r"+str(BASE_REG_NUM)+", %r"+str(BASE_REG_NUM+1)+", %r"+str(BASE_REG_NUM+2)+", %r"+str(BASE_REG_NUM+3)
 		else:	
-			generated_instr_code +=	dtype+stype+" %r0, %r1, %r2"
+			compute_code +=	dtype+stype+" %r"+str(BASE_REG_NUM)+", %r"+str(BASE_REG_NUM+1)+", %r"+str(BASE_REG_NUM+2)
 		
-		generated_instr_code += ";\\n\"\n"
+		compute_code += ";\\n\"\n"
 
-	generated_instr_code += ");\n"
+	compute_code += ");\n"
 	
 	# Put the generated instruction into the template code
-	template_code = template_code.replace("INSERT_CODE_HERE", generated_instr_code)
+	template_code = template_code.replace("COMPUTE_CODE", compute_code)
 
 	return template_code
 
@@ -52,19 +81,25 @@ def write_to_file(file_name, code):
 
 def main():
 
-	nb_instr = 4096
-
-	# Check for input arg
-	if len(sys.argv) == 1:
-		print("Generating 4096 instructions")
-	else: 	
-		nb_instr = int(sys.argv[1])	#Number of instructions to be generated
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-NI", help="number of instructions to be generated (default=1)", dest="nb_instr", action='store', default=1, type=int)
+	parser.add_argument("--hardware", help="generates hardware code (default=false)", action="store_true")
+	args = parser.parse_args()
+	
+	nb_instr = args.nb_instr
 	
 	# Read the template code
-	# TODO: thread block size and grid are fixed now. (32 and 1 respectively)
 	f = open("template.tmp",'r')
 	template_code  = f.read()
 	f.close()
+	
+	# Make it compilable for GPGPU-SIM	
+	if not args.hardware:
+		lines = template_code.split("\n")
+		template_code = ""
+		for i in lines:
+			if not "power" in i:
+				template_code += i+"\n"
 
 	# For every instructions in the ISA, generate the benchmark
 	for instr in ISA_table:

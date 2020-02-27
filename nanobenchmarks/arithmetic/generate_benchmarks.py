@@ -3,14 +3,14 @@ import sys
 import argparse
 from random import random
 
-BASE_REG_NUM = 21
+BASE_REG_NUM = 21			# Registers are named starting from this number
 
 div_by_zero = ["div", "rem"] 		# Are handled differently to avoid divide by zero
 
 last_source_equals_dest = ["mad.wide"]	# For this instructions, one of the source's size is equal to dest size
 
 # Main function for code generation, given instr name and type
-def generate_code(hardware, nb_instr, instr, template_code, instr_type):
+def generate_code(nb_instr, instr, template_code, instr_type):
 
 	source_width = int(instr_type[1:])			# Source registers size
 	source_suf = instr_type[:1]				# Source type: s(igned), u(nsigned), f(loating point)
@@ -109,7 +109,7 @@ def main():
 		# For every supported type for the currenct instruction instr (in ISA.py file)
 		for typee in supported_types:
 			# Generate the code 
-			code = generate_code(args.hardware, args.nb_instr, instr, template_code, typee)
+			code = generate_code(args.nb_instr, instr, template_code, typee)
 			# Write to file
 			f = open(instr+"."+str(typee)+".cu",'w')
 			f.write(code)

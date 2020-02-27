@@ -3,7 +3,7 @@ import sys
 import argparse
 from random import random
 
-BASE_REG_NUM = 11
+BASE_REG_NUM = 21
 
 div_by_zero = ["div", "rem"] 		# Are handled differently to avoid divide by zero
 

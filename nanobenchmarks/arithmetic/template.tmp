@@ -3,6 +3,9 @@
 #include <cuda_profiler_api.h>
 #include <cuda_runtime.h>
 #include "../utils/power_monitor/power_monitor.h"
+
+#define IDLE_POWER 4.0
+#define NUM_INSTS GEN_N
 __global__ void Kernel(int n, int div)
 {
     asm volatile("{\n\t");
@@ -51,7 +54,15 @@ int main( int argc, char** argv)
 /* STOP POWER MONITOR */
     cudaEventElapsedTime(&time, start, stop);
     double power = end_power_monitor();
-    std::cout << power << "," << time << std::endl;
+    
+    power /= 1000.0; //convert mW to W
+    power -= IDLE_POWER; // subtrack idle power
+    time /= 1000.0; //convert mS to S
+    unsigned long numInsts = (NUM_INTS * iterations * divergence * num_blocks * num_threads_per_block);
+    double epi = (power*(double)(time)) / (double)(numInsts);
+
+
+    std::cout << power << "," << time << "," << epi << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
     cudaDeviceSynchronize();

@@ -49,6 +49,7 @@ def generate_code(nb_instr, instr, instr_type, nb_sources, last_op_type, templat
 	
 	# Put the generated instruction into the template code
 	template_code = template_code.replace("COMPUTE_CODE", compute_code)
+	template_code = template_code.replace("GEN_N", str(nb_instr))
 
 	return template_code
 

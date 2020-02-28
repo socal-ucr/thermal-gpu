@@ -36,21 +36,21 @@ int main( int argc, char** argv)
     float time;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
-    
-    cudaEventRecord(start, 0);
-    cudaProfilerStart();
-
+ 
 /* START POWER MONITOR */
-    start_power_monitor(1);
+    start_power_monitor(1);   
+    cudaEventRecord(start, 0);
+
+    cudaProfilerStart();
     Kernel<<<num_blocks, num_threads_per_block>>>(iterations, divergence);
     cudaProfilerStop();
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
 /* STOP POWER MONITOR */
-    end_power_monitor();
+    double power = end_power_monitor();
     cudaEventElapsedTime(&time, start, stop);
-    std::cout << "Time," << time << std::endl;
+    std::cout << power << "," << time << std::endl;
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
     cudaDeviceSynchronize();

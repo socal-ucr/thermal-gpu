@@ -1,4 +1,4 @@
-CC = /home/mchow/cuda-8.0/bin/nvcc -arch=sm_61
+CC = nvcc -arch=sm_61
 CFLAGS = -O0 -Xcompiler -O0 -Xptxas -O0 -I. -I./power_monitor
 
 

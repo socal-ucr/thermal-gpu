@@ -56,10 +56,11 @@ VoltageCurrentV2 vc[3];
 IPConnection ipcon;
 volatile sig_atomic_t stopFlag = 0;
 pthread_t powerMonitor_t;
-int32_t avgPower= 0;
+double avgPower= 0;
 void* monitor_power(void*)
 {
-    int32_t numSamples = 0;
+    double numSamples = 0;
+    usleep(21);
     while(!stopFlag) { 
         int32_t sample_power = 0;
         for(int i = 0; i < 3; i++)
@@ -68,7 +69,7 @@ void* monitor_power(void*)
             voltage_current_v2_get_power(&vc[i], &sensor_power);
             sample_power += sensor_power;
         }
-        avgPower = avgPower + ((sample_power - avgPower) / (numSamples + 1));
+        avgPower = avgPower + (((double)(sample_power) - avgPower) / (numSamples + 1.0f));
         numSamples++;
     }
     return NULL; 
@@ -93,8 +94,9 @@ void start_power_monitor(int ms)
 
 }
 
-void end_power_monitor()
+double end_power_monitor()
 {
+    usleep(100000);
     stopFlag = 1;
     pthread_join(powerMonitor_t,NULL);
     voltage_current_v2_destroy(&vc[0]);
@@ -102,6 +104,6 @@ void end_power_monitor()
     voltage_current_v2_destroy(&vc[2]);
     ipcon_destroy(&ipcon); // Calls ipcon_disconnect internally
 
-    printf("AvgPower,%d\n",avgPower);
+    return avgPower;
 }
 

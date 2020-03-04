@@ -3,3 +3,4 @@ filterHeatmaps/data/
 nanobenchmarks/**/*.cu
 nanobenchmarks/**/bin/
 *.out
+*.o

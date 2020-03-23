@@ -1,11 +1,71 @@
-__global__ void
-Kernel()
+#include <stdio.h>
+#include <iostream>
+#include <cuda_profiler_api.h>
+#include <cuda_runtime.h>
+#include "../utils/power_monitor/power_monitor.h"
+
+#define IDLE_POWER 4.638
+#define NUM_INSTS GEN_Nul
+__global__ void Kernel(unsigned long n, int div)
 {
-INSERT_CODE_HERE
+    asm volatile("{\n\t");
+    int thread_id = threadIdx.x % 32;
+        REGISTER_CODE
+    if (thread_id < div) {
+        for (unsigned long k = 0; k < n; k++) {
+           COMPUTE_CODE
+        }
+    }
+    asm volatile("}\n\t");
 }
 
-int main( int argc, char** argv) 
+void usage() {
+    std::cout << "Usage ./binary <num_blocks> <num_threads_per_block> <iterations>" "threads active per warp" << std::endl;
+}
+
+int main( int argc, char** argv)
 {
-	Kernel<<<1, 32>>>();
-	return 0;
+    if (argc != 5) {
+        usage();
+        exit(1);
+    }
+    
+    unsigned long num_blocks = atoi(argv[1]);
+    unsigned long num_threads_per_block = atoi(argv[2]);
+    unsigned long iterations = atoi(argv[3]);
+    unsigned long divergence = atoi(argv[4]);
+    
+    cudaEvent_t start, stop;
+    float time;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+ 
+/* START POWER MONITOR */
+    start_power_monitor(1);
+  
+    cudaEventRecord(start, 0);
+    cudaProfilerStart();
+    Kernel<<<num_blocks, num_threads_per_block>>>(iterations, divergence);
+    cudaProfilerStop();
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+
+/* STOP POWER MONITOR */
+    cudaEventElapsedTime(&time, start, stop);
+    double power = end_power_monitor();
+    
+    power /= 1000.0; //convert mW to W
+    power -= IDLE_POWER; // subtrack idle power
+    time /= 1000.0; //convert mS to S
+    unsigned long numInsts = (NUM_INSTS * iterations * divergence * num_blocks * (num_threads_per_block / 32ul));
+    double epi = (power*(double)(time)) / (double)(numInsts);
+
+
+    std::cout << power << "," << time << "," << epi << std::endl;
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+    cudaDeviceSynchronize();
+
+    return 0;
 }

@@ -1,1 +1,6 @@
 filterHeatmaps/data/
+*.pyc
+nanobenchmarks/**/*.cu
+nanobenchmarks/**/bin/
+*.out
+*.o

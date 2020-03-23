@@ -55,7 +55,6 @@
 #define UID3VMB "HL3" // Change XYZ to the UID of your Voltage/Current Bricklet 2.0
 VoltageCurrentV2 vc[3];
 
-
 void monitor_power(nvmlDevice_t device)
 {
     nvmlReturn_t result;
@@ -81,7 +80,6 @@ void monitor_power(nvmlDevice_t device)
         power += sensor_power;
 
     }
-    power = power / 1000;
     unsigned int temp;
     result = nvmlDeviceGetTemperature(device, 0, &temp);
 

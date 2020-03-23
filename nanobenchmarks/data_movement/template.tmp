@@ -6,12 +6,15 @@
 
 #define IDLE_POWER 4.638
 #define NUM_INSTS GEN_Nul
-__global__ void Kernel(unsigned long n, int div)
+#define N 1024
+__global__ void Kernel(unsigned long n, int div, unsigned long long int * d_a)
 {
     asm volatile("{\n\t");
+    __shared__ int shared_arr[N];
+    shared_arr[threadIdx.x] = threadIdx.x;
     int thread_id = threadIdx.x % 32;
-        REGISTER_CODE
     if (thread_id < div) {
+        REGISTER_CODE
         for (unsigned long k = 0; k < n; k++) {
            COMPUTE_CODE
         }
@@ -40,13 +43,21 @@ int main( int argc, char** argv)
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
+    unsigned long long int * h_a;
+    unsigned long long int * d_a;
+    h_a = (unsigned long long *)malloc(sizeof(unsigned long long int) * N);
+    for(int i = 0; i < N; i++)
+        h_a[i] = i;
+    cudaMalloc ((void **) &d_a, sizeof(unsigned long long int) * N );
+    cudaMemcpy((void *)d_a, (void *)h_a, sizeof(unsigned long long int) * N, cudaMemcpyHostToDevice);
  
+    cudaDeviceSynchronize ();
 /* START POWER MONITOR */
     start_power_monitor(1);
   
     cudaEventRecord(start, 0);
     cudaProfilerStart();
-    Kernel<<<num_blocks, num_threads_per_block>>>(iterations, divergence);
+    Kernel<<<num_blocks, num_threads_per_block>>>(iterations, divergence,d_a);
     cudaProfilerStop();
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);

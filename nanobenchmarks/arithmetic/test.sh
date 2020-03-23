@@ -16,18 +16,21 @@ do
     fi
     if [[ $NAME == *"rem"* ]]
     then
-        if [[ $PRECISION == *"32"* ]]
+        if [[ $PRECISION == *"s32"* ]]
         then
-            ITERATIONS=1000
-        else
-            ITERATIONS=100
+            ITERATIONS=1000000
+        fi
+        
+        if [[ $PRECISION == *"64"* ]]
+        then
+            ITERATIONS=100000
         fi
     fi
     if [[ $NAME == "rsqrt.approx" ]]
     then
         if [[ $PRECISION == "f64" ]]
         then
-            ITERATIONS=10000
+            ITERATIONS=10000000
         fi
     fi
     OUTPUT=`./${TEST} 12 1024 ${ITERATIONS} 32`

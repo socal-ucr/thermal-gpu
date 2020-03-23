@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <iostream>
+#include <cuda_profiler_api.h>
+#include <cuda_runtime.h>
+#include "../utils/power_monitor/power_monitor.h"
+
+#define IDLE_POWER 4.638
+#define NUM_INSTS GEN_Nul
+#define N 1024
+__global__ void Kernel(unsigned long n, int div, unsigned long long int * d_a)
+{
+    asm volatile("{\n\t");
+    __shared__ int shared_arr[N];
+    shared_arr[threadIdx.x] = threadIdx.x;
+    int thread_id = threadIdx.x % 32;
+    if (thread_id < div) {
+        REGISTER_CODE
+        for (unsigned long k = 0; k < n; k++) {
+           COMPUTE_CODE
+        }
+    }
+    asm volatile("}\n\t");
+}
+
+void usage() {
+    std::cout << "Usage ./binary <num_blocks> <num_threads_per_block> <iterations>" "threads active per warp" << std::endl;
+}
+
+int main( int argc, char** argv)
+{
+    if (argc != 5) {
+        usage();
+        exit(1);
+    }
+    
+    unsigned long num_blocks = atoi(argv[1]);
+    unsigned long num_threads_per_block = atoi(argv[2]);
+    unsigned long iterations = atoi(argv[3]);
+    unsigned long divergence = atoi(argv[4]);
+    
+    cudaEvent_t start, stop;
+    float time;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    unsigned long long int * h_a;
+    unsigned long long int * d_a;
+    h_a = (unsigned long long *)malloc(sizeof(unsigned long long int) * N);
+    for(int i = 0; i < N; i++)
+        h_a[i] = i;
+    cudaMalloc ((void **) &d_a, sizeof(unsigned long long int) * N );
+    cudaMemcpy((void *)d_a, (void *)h_a, sizeof(unsigned long long int) * N, cudaMemcpyHostToDevice);
+ 
+    cudaDeviceSynchronize ();
+/* START POWER MONITOR */
+    start_power_monitor(1);
+  
+    cudaEventRecord(start, 0);
+    cudaProfilerStart();
+    Kernel<<<num_blocks, num_threads_per_block>>>(iterations, divergence,d_a);
+    cudaProfilerStop();
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+
+/* STOP POWER MONITOR */
+    cudaEventElapsedTime(&time, start, stop);
+    double power = end_power_monitor();
+    
+    power /= 1000.0; //convert mW to W
+    power -= IDLE_POWER; // subtrack idle power
+    time /= 1000.0; //convert mS to S
+    unsigned long numInsts = (NUM_INSTS * iterations * divergence * num_blocks * (num_threads_per_block / 32ul));
+    double epi = (power*(double)(time)) / (double)(numInsts);
+
+    std::cout << power << "," << time << "," << epi << std::endl;
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+    cudaDeviceSynchronize();
+
+    return 0;
+}

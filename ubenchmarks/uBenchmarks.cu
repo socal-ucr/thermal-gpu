@@ -16,7 +16,7 @@
 
 #define THREADS_PER_BLOCK 1024
 #define NUM_OF_BLOCKS 20
-#define ITERATIONS 10000000000
+#define ITERATIONS 100000000
 #define SMID 5
 #include "include/ContAcq-IntClk.h"
 
@@ -89,7 +89,7 @@ __global__ void SM(const float* A, const float* B, float* C, int N)
     unsigned int smid = get_smid();
     if(smid == SMID)
     {
-        for(unsigned k=0; k<ITERATIONS;k++) 
+        for(unsigned long k=0; k<ITERATIONS;k++) 
 	{
             repeat2048(asm volatile ("sin.approx.ftz.f32 %0, %2;\n\t"
 				     "sin.approx.ftz.f32 %1, %3;" :
@@ -116,7 +116,7 @@ __global__ void SFU_EXP(const float* A, const float* B, float* C, int N)
     unsigned int smid = get_smid();
     if(smid == SMID)
     {
-        for(unsigned k=0; k<ITERATIONS;k++) 
+        for(unsigned long k=0; k<ITERATIONS;k++) 
 	{
             repeat2048(Value2=expf(Value1);Value3=expf(Value2);Value1=expf(Value3);)
         }
@@ -142,7 +142,7 @@ __global__ void SFU_LOG(const float* A, const float* B, float* C, int N)
     unsigned int smid = get_smid();
     if(smid == SMID)
     {
-        for(unsigned k=0; k<ITERATIONS;k++)
+        for(unsigned long k=0; k<ITERATIONS;k++)
         {
 	    repeat2048(asm volatile ("lg2.approx.ftz.f32 %0, %2;\n\t"
 				     "lg2.approx.ftz.f32 %1, %3;" :
@@ -170,7 +170,7 @@ __global__ void SFU_SIN(const float* A, const float* B, float* C, int N)
     unsigned int smid = get_smid();
     if(smid == SMID)
     {
-        for(unsigned k=0; k<ITERATIONS;k++) 
+        for(unsigned long k=0; k<ITERATIONS;k++) 
         {  
 	    repeat2048(asm volatile ("sin.approx.ftz.f32 %0, %2;\n\t"
 				     "sin.approx.ftz.f32 %1, %3;" :
@@ -225,7 +225,7 @@ __global__ void FP_ADD(const float* A, const float* B, float* C, int N)
     if (smid == SMID)
     {
         // Excessive Addition access
-    	for(unsigned k=0; k<ITERATIONS;k++)
+    	for(unsigned long k=0; k<ITERATIONS;k++)
 	{
 	    repeat2048(asm volatile ("add.rz.f32 %0, %1, %2;": "=f"(Value1) : "f"(I1), "f"(I2));)
     	}
@@ -248,7 +248,7 @@ __global__ void FP_DIV(const float* A, const float* B, float* C, int N)
     unsigned int smid = get_smid();
     if(smid == SMID)
     {
-        for(unsigned k=0; k<ITERATIONS;k++) 
+        for(unsigned long k=0; k<ITERATIONS;k++) 
         {
 	    repeat2048(asm volatile ("div.rz.f32 %0, %1, %2;": "=f"(Value1) : "f"(I1), "f"(I2));)
         }
@@ -269,7 +269,7 @@ __global__ void FP_MAD(const float* A, const float* B, float* C, int N)
     unsigned int smid = get_smid();
     if(smid == SMID)
     {
-        for(unsigned k=0; k<ITERATIONS;k++) {
+        for(unsigned long k=0; k<ITERATIONS;k++) {
             repeat2048(asm volatile ("fma.rz.f32 %0, %1, %2, %2;": "=f"(Value) : "f"(I1), "f"(I2));)
         }
     }
@@ -290,7 +290,7 @@ __global__ void FP_MUL(const float* A, const float* B, float* C, int N)
     unsigned int smid = get_smid();
     if(smid == SMID)
     {
-        for(unsigned k=0; k<ITERATIONS;k++)
+        for(unsigned long k=0; k<ITERATIONS;k++)
         {
 	    repeat2048(asm volatile ("mul.rz.f32 %0, %1, %2;": "=f"(Value1) : "f"(I1), "f"(I2));)
         }
@@ -313,7 +313,7 @@ __global__ void INT_ADD(const float* A, const float* B, float* C, int N)
     unsigned int smid = get_smid();
     if(smid == SMID)
     {
-        for(unsigned k=0; k<ITERATIONS;k++) 
+        for(unsigned long k=0; k<ITERATIONS;k++) 
         {
 	    repeat2048(asm volatile ("add.u32 %0, %1, %2;": "=r"(Value1) : "r"(I1), "r"(I2));)
         }
@@ -334,7 +334,7 @@ __global__ void INT_DIV(const float* A, const float* B, float* C, int N)
     unsigned int smid = get_smid();
     if(smid == SMID)
     {
-        for(unsigned k=0; k<ITERATIONS;k++) 
+        for(unsigned long k=0; k<ITERATIONS;k++) 
         {
 	    repeat2048(asm volatile ("div.u32 %0, %1, %2;": "=r"(Value1) : "r"(I1), "r"(I2));)
         }
@@ -378,7 +378,7 @@ __global__ void INT_MUL(const float* A, const float* B, float* C, int N)
     unsigned int smid = get_smid();
     if(smid == SMID)
     {
-        for(unsigned k=0; k<ITERATIONS;k++) 
+        for(unsigned long k=0; k<ITERATIONS;k++) 
         {
 	    repeat2048(asm volatile ("mul.lo.u32 %0, %1, %2;": "=r"(Value1) : "r"(I1), "r"(I2));)
         }
@@ -395,7 +395,7 @@ __global__ void L1(float* A, float* C, int N){
 
     //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
     //unsigned j=0, k=0;
-    unsigned k=0;
+    unsigned long k=0;
     // Excessive Addition access
     unsigned int smid = get_smid();
     int temp = 0;
@@ -435,7 +435,7 @@ __global__ void L2(float* A, float* C, int N){
 
     //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
     //unsigned j=0, k=0;
-    unsigned k=0;
+    unsigned long k=0;
     // Excessive Addition access
     unsigned int smid = get_smid();
     int temp = 0;
@@ -473,12 +473,11 @@ __global__ void I_CACHE(float* A, float* C, int N){
 
     //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
     //unsigned j=0, k=0;
-    unsigned k=0;
     int temp = 0;
     unsigned int smid = get_smid();
     if(smid == SMID)
     {
-        for(k=0; k<ITERATIONS; ++k){
+        for(unsigned long k=0; k<ITERATIONS; ++k){
 LABEL:
             goto LABEL;
         }
@@ -494,7 +493,7 @@ __global__ void REG_FILE(float* A, float* C, int N){
 
     //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
     //unsigned j=0, k=0;
-    unsigned k=0;
+    unsigned long k = 0;
     unsigned long temp = 123456789;
     unsigned long temp1 = 0;
     unsigned int smid = get_smid();
@@ -509,23 +508,36 @@ __global__ void REG_FILE(float* A, float* C, int N){
     __syncthreads();
 }
 __global__ void SHD_MEM(float* A, float* C, int N){
-    __shared__ unsigned s_A[THREADS_PER_BLOCK];
-    int tid = threadIdx.x;
-    s_A[tid] = A[tid];
-    //Do Some Computation
-
     //int size = (LINE_SIZE*ASSOC*SETS)/sizeof(int);
     //unsigned j=0, k=0;
-    unsigned k=0;
-    unsigned temp = 0;
+    unsigned long k=0;
     unsigned int smid = get_smid();
+
+    __shared__ unsigned long long sdata[THREADS_PER_BLOCK];
+
+    __shared__ void **tmp_ptr;
+
+    __shared__ void *arr[THREADS_PER_BLOCK];
+    int i =0; 
+    if (threadIdx.x == 0) {
+        for (i=0; i < THREADS_PER_BLOCK; i++) {
+            arr[i] = (void *)&sdata[i];
+        }
+        for (i=0; i < (THREADS_PER_BLOCK - 1); i++) {
+            sdata[i] = (unsigned long long)arr[i+1];
+        }
+        sdata[THREADS_PER_BLOCK - 1] = (unsigned long long) arr[0];
+    }
+
+    __syncthreads();
+
+    tmp_ptr = (void **)(&(arr[(threadIdx.x + 1)%THREADS_PER_BLOCK]));
     if(smid == SMID)
     {
         for(k=0; k<ITERATIONS; ++k){
-            repeat2048(asm volatile ("ld.shared.u32 %0, [%1];" : "=r"(temp): "l" (s_A+tid));)
+            repeat2048(tmp_ptr = (void**)(*tmp_ptr);)
         }
     }
-    C[tid]=s_A[tid];
     __syncthreads();
 }
 

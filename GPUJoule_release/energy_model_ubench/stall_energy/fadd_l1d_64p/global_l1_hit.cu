@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <curand.h>
 #include <curand_kernel.h>
-
+#include "power_monitor/power_monitor.h"
 #define SHARED_MEM_ELEMENTS 1024
 #define GLOBAL_MEM_ELEMENTS 4096
 //#define GLOBAL_MEM_ELEMENTS 131072
@@ -196,6 +196,7 @@ void parametric_measure_shared(int N, int iterations, int stride) {
         cudaEventCreate(&start);
         cudaEventCreate(&stop);
 
+start_power_monitor(1);
         cudaEventRecord(start, 0);
         cudaProfilerStart();
 
@@ -209,6 +210,7 @@ void parametric_measure_shared(int N, int iterations, int stride) {
 
         cudaProfilerStop();
         cudaEventRecord(stop, 0);
+end_power_monitor(1);
         cudaEventSynchronize(stop);
 
         cudaEventElapsedTime(&time, start, stop);
@@ -244,10 +246,10 @@ void parametric_measure_shared(int N, int iterations, int stride) {
         }
 
 
-        printf("  %d, %f, %f, %f, %f\n",stride,(double)(avg_lat/(num_threads_per_block * (divergence / 32.0) * num_blocks * 200.0 *num_iterations)), (double)(min_dur/(200.0 * num_iterations)), (double)(max_dur/(200.0 * num_iterations)), time);
+//        printf("  %d, %f, %f, %f, %f\n",stride,(double)(avg_lat/(num_threads_per_block * (divergence / 32.0) * num_blocks * 200.0 *num_iterations)), (double)(min_dur/(200.0 * num_iterations)), (double)(max_dur/(200.0 * num_iterations)), time);
         //printf("  %d, %f, %f, %f, %f\n",stride,(double)(avg_lat/(num_threads_per_block * num_blocks * 200.0 *num_iterations)), (double)(min_dur/(200.0 * num_iterations)), (double)(max_dur/(200.0 * num_iterations)), time);
 
-        //printf("%f\n", time);
+        printf("%f\n", time);
     }
 
     /* free memory on GPU */

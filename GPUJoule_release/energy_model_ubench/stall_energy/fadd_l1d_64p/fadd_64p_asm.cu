@@ -3,6 +3,7 @@
 #include <cuda_profiler_api.h>
 //#include <cutil.h>
 #include <cuda_runtime.h>
+#include "power_monitor/power_monitor.h"
 
 float* h_A;
 float* h_B;
@@ -314,6 +315,7 @@ int main(int argc, char **argv)
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
+start_power_monitor(1);
     cudaEventRecord(start, 0);
     cudaProfilerStart();
     
@@ -323,11 +325,12 @@ int main(int argc, char **argv)
     cudaDeviceSynchronize();
     cudaProfilerStop();
     cudaEventRecord(stop, 0);
+end_power_monitor(1);
     cudaEventSynchronize(stop);
 
     cudaEventElapsedTime(&time, start, stop);
 
-    std::cout << "GPU Elapsed Time = " << time << std::endl;
+    std::cout << time << std::endl;
   
     cudaEventDestroy(start);
     cudaEventDestroy(stop);

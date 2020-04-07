@@ -17,7 +17,7 @@ all: dir $(BINS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %: %.o $(patsubst %.h,%.o,$(DEPS))
-	$(CC) $(CFLAGS) -o bin/$@ $^ 
+	$(CC) $(CFLAGS) -o bin/$@.out $^ 
 dir:
 	mkdir -p bin
 

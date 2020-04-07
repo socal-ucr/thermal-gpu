@@ -58,7 +58,7 @@ ifeq (${ARCH},$(filter ${ARCH},32 64))
     endif
 
 else
-    NVML_LIB := /usr/local/cuda/lib${ARCH}/stubs/
+    NVML_LIB := ${CUDA_PATH}/lib${ARCH}/stubs/
     $(info "libnvidia-ml.so.1" not found, using stub library.)
 endif
 
@@ -66,11 +66,12 @@ ifneq (${ARCH},$(filter ${ARCH},32 64))
 	$(error Unknown architecture!)
 endif
 
-CFLAGS  := -I /usr/local/cuda/include -pthread
+CFLAGS  := -I ${CUDA_PATH}/include -pthread
 LDFLAGS := -lnvidia-ml -L $(NVML_LIB)
 
 power_monitor: power_monitor.o
 	$(CC) ip_connection.o bricklet_voltage_current_v2.o $< $(CFLAGS) $(LDFLAGS) -o $@
+
 
 clean:
 	-@rm -f power_monitor.o

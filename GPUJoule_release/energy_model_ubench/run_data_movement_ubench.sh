@@ -11,7 +11,7 @@ WarmUp="/home/danwong/thermal-gpu/GPUJoule_release/energy_model_ubench/compute_e
         uBM=${bench##*/}
         uBM=${uBM%.out}
         echo $uBM
-	${WarmUp}
+	${WarmUp} &> /dev/null
         ${bench} $NumCTA $NumThd $NumIter 32 1 &>> $GPUJoule_dir/energy_model_data/data_movement_energy/l1_cache/"$uBM"_"$NumIter"iter_time.txt
         sleep 10
     done
@@ -21,7 +21,7 @@ WarmUp="/home/danwong/thermal-gpu/GPUJoule_release/energy_model_ubench/compute_e
         uBM=${bench##*/}
         uBM=${uBM%.out}
         echo $uBM
-	${WarmUp}
+	${WarmUp} &> /dev/null
         $bench $NumCTA $NumThd $NumIter 32 1 &>> $GPUJoule_dir/energy_model_data/data_movement_energy/shd_mem/"$uBM"_"$NumIter"iter_time.txt
         sleep 10
     done
@@ -31,7 +31,7 @@ WarmUp="/home/danwong/thermal-gpu/GPUJoule_release/energy_model_ubench/compute_e
         uBM=${bench##*/}
         uBM=${uBM%.out}
         echo $uBM
-	${WarmUp}
+	${WarmUp} &> /dev/null
         $bench $NumCTA $NumThd $NumIter 32 1 &>> $GPUJoule_dir/energy_model_data/data_movement_energy/l2_cache/"$uBM"_"$NumIter"iter_time.txt
         sleep 10
     done
@@ -41,7 +41,7 @@ WarmUp="/home/danwong/thermal-gpu/GPUJoule_release/energy_model_ubench/compute_e
         uBM=${bench##*/}
         uBM=${uBM%.out}
         echo $uBM
-	${WarmUp}
+	${WarmUp} &> /dev/null
         $bench $NumCTA $NumThd $NumIter 32 1 &>> $GPUJoule_dir/energy_model_data/data_movement_energy/dram/"$uBM"_"$NumIter"iter_time.txt
         sleep 10
     done

@@ -3,6 +3,7 @@
 #include <cuda_profiler_api.h>
 //#include <cutil.h>
 #include <cuda_runtime.h>
+#include "power_monitor/power_monitor.h"
 
 #define SHARED_MEM_ELEMENTS 1024
 #define GLOBAL_MEM_ELEMENTS 4096
@@ -388,6 +389,7 @@ void parametric_measure_shared(int N, int iterations, int stride) {
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
+start_power_monitor(1);
     cudaEventRecord(start, 0);
     cudaProfilerStart();
 
@@ -401,6 +403,7 @@ void parametric_measure_shared(int N, int iterations, int stride) {
 
     cudaProfilerStop();
     cudaEventRecord(stop, 0);
+end_power_monitor(1);
     cudaEventSynchronize(stop);
 
     cudaEventElapsedTime(&time, start, stop);

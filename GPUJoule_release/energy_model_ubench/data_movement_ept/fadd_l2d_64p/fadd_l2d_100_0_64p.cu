@@ -4,6 +4,7 @@
 //#include <cutil.h>
 #include <cuda_runtime.h>
 #include <string>
+#include "power_monitor/power_monitor.h"
 
 #define GPUJOULE_DIR "/home/mchow/thermal-gpu/GPUJoule_release"
 
@@ -318,9 +319,8 @@ int main(int argc, char **argv)
     cudaEventCreate(&stop);
 
     std::string cmd = GPUJOULE_DIR"/nvml_power_monitor/example/power_monitor 5 > "GPUJOULE_DIR"/energy_model_ubench/energy_model_data/data_movement_energy/l2_cache/fadd_l2d_100_0_64p_asm_power.txt &";
-    std::system(cmd.c_str());
-    std::system("sleep 5");
    
+start_power_monitor(1);
     cudaEventRecord(start, 0);
     cudaProfilerStart();
     
@@ -330,11 +330,11 @@ int main(int argc, char **argv)
     cudaDeviceSynchronize();
     cudaProfilerStop();
     cudaEventRecord(stop, 0);
+end_power_monitor();
     cudaEventSynchronize(stop);
 
     cudaEventElapsedTime(&time, start, stop);
 
-    std::system("killall power_monitor");
     std::cout << time << std::endl;
   
     cudaEventDestroy(start);

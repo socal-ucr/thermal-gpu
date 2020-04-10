@@ -4,6 +4,7 @@
 #include <curand.h>
 #include <curand_kernel.h>
 #include <string>
+#include "power_monitor/power_monitor.h"
 
 #define GPUJOULE_DIR "/home/mchow/thermal-gpu/GPUJoule_release"
 
@@ -197,12 +198,11 @@ void parametric_measure_shared(int N, int iterations, int stride) {
         float time;
 
     std::string cmd = GPUJOULE_DIR"/nvml_power_monitor/example/power_monitor 5 > "GPUJOULE_DIR"/energy_model_ubench/energy_model_data/data_movement_energy/l1_cache/fadd_l1d_0_100_64p_asm_power.txt &";
-    std::system(cmd.c_str());
-    std::system("sleep 5");
 
         cudaEventCreate(&start);
         cudaEventCreate(&stop);
 
+start_power_monitor(1);
         cudaEventRecord(start, 0);
         cudaProfilerStart();
 
@@ -216,11 +216,11 @@ void parametric_measure_shared(int N, int iterations, int stride) {
 
         cudaProfilerStop();
         cudaEventRecord(stop, 0);
+end_power_monitor();
         cudaEventSynchronize(stop);
 
         cudaEventElapsedTime(&time, start, stop);
 
-    std::system("killall power_monitor");
 
         error_id = cudaGetLastError();
         if (error_id != cudaSuccess) {
@@ -253,10 +253,10 @@ void parametric_measure_shared(int N, int iterations, int stride) {
         }
 
 
-        printf("  %d, %f, %f, %f, %f\n",stride,(double)(avg_lat/(num_threads_per_block * (divergence / 32.0) * num_blocks * 200.0 *num_iterations)), (double)(min_dur/(200.0 * num_iterations)), (double)(max_dur/(200.0 * num_iterations)), time);
+//        printf("  %d, %f, %f, %f, %f\n",stride,(double)(avg_lat/(num_threads_per_block * (divergence / 32.0) * num_blocks * 200.0 *num_iterations)), (double)(min_dur/(200.0 * num_iterations)), (double)(max_dur/(200.0 * num_iterations)), time);
         //printf("  %d, %f, %f, %f, %f\n",stride,(double)(avg_lat/(num_threads_per_block * num_blocks * 200.0 *num_iterations)), (double)(min_dur/(200.0 * num_iterations)), (double)(max_dur/(200.0 * num_iterations)), time);
 
-        //printf("%f\n", time);
+        printf("%f\n", time);
     }
 
     /* free memory on GPU */

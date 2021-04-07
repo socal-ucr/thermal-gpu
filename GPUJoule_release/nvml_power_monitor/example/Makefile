@@ -69,10 +69,10 @@ endif
 CFLAGS  := -I ${CUDA_PATH}/include -pthread
 LDFLAGS := -lnvidia-ml -L $(NVML_LIB)
 
-power_monitor: power_monitor.o
-	$(CC) ip_connection.o bricklet_voltage_current_v2.o $< $(CFLAGS) $(LDFLAGS) -o $@
+power_monitor: ip_connection.o bricklet_voltage_current_v2.o power_monitor.o
+	$(CC) $^ $(CFLAGS) $(LDFLAGS) -o $@
 
 
 clean:
-	-@rm -f power_monitor.o
+	-@rm -f *.o
 	-@rm -f power_monitor

@@ -19,7 +19,7 @@ TotalInstructions = Unroll * Iterations * NumCTA * NumThread / WarpSize;
 InputFile = open(FilePath,'r')
 Power = int(InputFile.readline().split(",")[1])
 Time = float(InputFile.readline().split(",")[1])
-Energy = Power/1000.0 * Time/1000.0
+Energy = (Power-IdlePower)/1000.0 * Time/1000.0
 #print("Power (mW): ", Power, " Time (ms): ", Time, " Energy (J): ", Energy)
 
 EPI = Energy / TotalInstructions

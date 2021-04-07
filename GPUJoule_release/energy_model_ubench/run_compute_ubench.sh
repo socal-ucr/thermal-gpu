@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-GPUJoule_dir="/home/mchow/thermal-gpu/GPUJoule_release"
+GPUJoule_dir="/home/danwong/thermal-gpu/GPUJoule_release"
 
 NumCTA="12"
 NumThd="1024"

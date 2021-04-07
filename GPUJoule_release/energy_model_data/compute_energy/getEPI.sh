@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-IDLE_POWER=4
+IDLE_POWER=17800
 INSTS=256000000
 
 UNROLL=256
 ITER=1000000
 NumCTA=12
 NumThread=1024
-WarpSize=32
+WarpSize=1
 
 for uBM in *_1000000iter_time.txt
 do
